@@ -1,54 +1,65 @@
-import Navebar from "@/components/navbar";
-import ItemCard from "@/components/ItemCard";
+
+import HeroSection from "@/components/Landing page/HeroSection";
+import NewArrivals from "@/components/Landing page/CoustumeCarousel";
+import TopSelling from "@/components/Landing page/CoustumeCarousel";
+
+
+const newArrivalItems = [
+  {
+    id: 1,
+    title: "Urban Hoodie",
+    price: 79.99,
+    imgSrc: "/hoodie.jpg",
+    isOnSale: false,
+    category: "Hoodies",
+  },
+  {
+    id: 2,
+    title: "Retro Sneakers",
+    price: 129.99,
+    salePrice: 99.99,
+    imgSrc: "/shoes.jpg",
+    isOnSale: true,
+    category: "Shoes",
+  },
+  {
+    id: 3,
+    title: "Denim Jacket",
+    price: 149.99,
+    imgSrc: "/jacket.jpg",
+    isOnSale: false,
+    category: "Jackets",
+  },
+  {
+    id: 4,
+    title: "Vintage Leather Boots",
+    price: 189.99,
+    salePrice: 149.99,
+    imgSrc: "/leather-boots.jpg",
+    isOnSale: true,
+    category: "Footwear",
+  },
+  {
+    id: 5,
+    title: "Classic Beanie",
+    price: 29.99,
+    imgSrc: "/beanie.jpg",
+    isOnSale: false,
+    category: "Accessories",
+  },
+
+];
+
 
 export default function Home() {
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
-      <Navebar />
-      <div className="pt-28 px-32 flex flex-wrap gap-10 justify-center">
-        <ItemCard
-          isOnSale={true}
-          price={59.99}
-          salePrice={39.99}
-          title="Cool Sneakers"
-          imgSrc="/test.jpg"
-          category="Shoes"
-        />
-        <ItemCard
-          isOnSale={false}
-          price={89.99}
-          title="Leather Jacket"
-          imgSrc="/test.jpg"
-          category="Clothing"
-        />
-
-        <ItemCard
-          isOnSale={true}
-          price={49.99}
-          salePrice={44.99}
-          title="Graphic Tee"
-          imgSrc="/test.jpg"
-          category="T-Shirts"
-        />
-
-        <ItemCard
-          isOnSale={true}
-          price={19.99}
-          salePrice={14.99}
-          title="Classic Cap"
-          imgSrc="/test.jpg"
-          category="Accessories"
-        />
-
-        <ItemCard
-          isOnSale={true}
-          price={59.99}
-          salePrice={39.99}
-          title="Cool Sneakers"
-          imgSrc="/test.jpg"
-          category="Shoes"
-        />
+    <>
+      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen pt-20">
+        <HeroSection />
+        <NewArrivals title="New Arrivals"  items={newArrivalItems}/>
+        <TopSelling title="Top Selling Products"  items={newArrivalItems}/>
       </div>
-    </div>
+    </>
+
   );
 }

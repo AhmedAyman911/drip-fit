@@ -1,24 +1,16 @@
 import Link from "next/link"
 import Image from "next/image"
 
-interface ItemCardProps {
-    title: string;
-    imgSrc: string;
-    price: number;
-    category: string;
-    isOnSale: boolean;
-    salePrice?: number
-}
+import { ItemTypes } from "@/types/ItemTypes"
 
 
-export default function ItemCard({ isOnSale, title, imgSrc, price, category, salePrice }: ItemCardProps) {
+export default function ItemCard({ isOnSale, title, imgSrc, price, category, salePrice }: ItemTypes) {
     return (
-        <Link href={'/item'} className="flex flex-col w-80">
-            <div className="relative">
+        <Link href={'/item'} className="flex flex-col md:w-80 w-64">
+            <div className="relative aspect-square overflow-hidden">
                 <Image alt="item img"
                     src={imgSrc}
-                    width={512}
-                    height={512}
+                    fill
                     className="object-cover"
                 />
                 {isOnSale && (
