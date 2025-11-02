@@ -3,15 +3,26 @@
 import { useTheme } from "next-themes";
 import { Switch } from "@/components/ui/switch";
 import { Sun, Moon } from "lucide-react";
+import { useSyncExternalStore } from "react";
 
 export function ModeToggle() {
-  const { setTheme, resolvedTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
 
-  const isDark = resolvedTheme === "dark";
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+
+  const isDark = theme === "dark";
 
   const toggleTheme = () => {
     setTheme(isDark ? "light" : "dark");
   };
+
+  if (!mounted) {
+    return <div className="w-[88px] h-6" />;
+  }
 
   return (
     <div className="flex items-center gap-2">
