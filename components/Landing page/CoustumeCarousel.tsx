@@ -7,11 +7,11 @@ import {
 } from "@/components/ui/carousel";
 
 import ItemCard from "@/components/ItemCard";
-import { ItemTypes } from "@/types/ItemTypes"
+import { Item } from "@/types/ItemTypes"
 
 interface CoustumeCarouselProps {
     title: string;
-    items: ItemTypes[]
+    items: Item[]
 }
 
 export default function CoustumeCarousel({ title, items }: CoustumeCarouselProps) {
@@ -26,15 +26,7 @@ export default function CoustumeCarousel({ title, items }: CoustumeCarouselProps
                                 key={item.id}
                                 className="basis-8xl"
                             >
-                                <ItemCard
-                                    id={item.id}
-                                    title={item.title}
-                                    price={item.price}
-                                    salePrice={item.salePrice}
-                                    imgSrc={item.imgSrc}
-                                    isOnSale={item.isOnSale}
-                                    category={item.category}
-                                />
+                                <ItemCard key={item.id} item={item} />
                             </CarouselItem>
                         ))}
                     </CarouselContent>

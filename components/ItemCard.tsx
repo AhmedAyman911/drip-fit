@@ -6,7 +6,7 @@ export default function ItemCard({ item }: { item: Item }) {
   return (
     <Link href={`/products/${item.id}`} className="flex flex-col md:w-80 w-64">
       <div className="relative aspect-square overflow-hidden">
-        <Image alt="item img" src={item.imgSrc} fill className="object-cover" />
+        <Image alt="item img" src={item.imgSrc} fill className="object-cover rounded-2xl" />
         {item.isOnSale && (
           <span className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-2xl">
             Sale

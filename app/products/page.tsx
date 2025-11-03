@@ -7,7 +7,7 @@ export default function ProductsPage() {
       <ProductsFilter />
       <ItemsGrid
         title="All Products"
-        className="flex-1 flex-wrap gap-4 justify-center md:justify-start p-6"
+        className="flex-1 flex-wrap gap-4 justify-center md:justify-start pl-16"
       />
     </div>
   );
