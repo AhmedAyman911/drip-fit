@@ -28,12 +28,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col dark:bg-gray-900 bg-gray-100 `}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Navebar/>
-          {children}
-          <Footer/>
+          <Navebar />
+          <main className="grow">
+            {children}
+          </main>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

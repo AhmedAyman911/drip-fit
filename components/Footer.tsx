@@ -3,7 +3,7 @@ import { Facebook, Instagram, Twitter, ShoppingBag } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-100 dark:bg-gray-900 py-10 px-4 md:px-16 text-gray-700 dark:text-gray-300">
+    <footer className="bg-gray-100 dark:bg-gray-900 py-10 px-4 md:px-16 text-gray-700 dark:text-gray-300 border-t">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
 
         <div>

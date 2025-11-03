@@ -7,7 +7,7 @@ const user: string = ''
 
 export default function Navebar() {
     return (
-        <nav className="bg-gray-100 dark:bg-gray-900 flex justify-between fixed top-0 md:w-full w-screen md:py-6 md:px-16 md:h-20
+        <nav className="bg-gray-100 dark:bg-gray-900 flex justify-between fixed top-0 md:w-full w-screen md:py-6 md:px-32 md:h-20
             py-6 px-6 h-20 shadow-2xl border-b z-50
         ">
             <Link href={'/'} className=" flex gap-2">
