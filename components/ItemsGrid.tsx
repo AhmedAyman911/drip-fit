@@ -103,16 +103,7 @@ export default function ItemsGrid({
       </h1>
       <div className="flex flex-wrap gap-4 justify-center md:justify-start ">
         {items.map((item) => (
-          <ItemCard
-            key={item.id}
-            id={item.id}
-            title={item.title}
-            price={item.price}
-            salePrice={item.salePrice}
-            imgSrc={item.imgSrc}
-            isOnSale={item.isOnSale}
-            category={item.category}
-          />
+          <ItemCard key={item.id} item={item} />
         ))}
       </div>
     </div>
