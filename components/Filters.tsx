@@ -4,7 +4,7 @@ import { Filter } from "lucide-react";
 
 import FilterAccordion from "./FilterAccordion";
 
-export function ProductsFilter() {
+export default function ProductsFilter() {
 
     return (
         <>
@@ -19,7 +19,7 @@ export function ProductsFilter() {
                         </SheetTrigger>
                     </div>
 
-                    <SheetContent side="left" className="w-64 dark:bg-gray-900">
+                    <SheetContent side="left" className="w-64 dark:bg-gray-900 overflow-y-auto">
                         <SheetHeader>
                             <SheetTitle>Filters</SheetTitle>
                         </SheetHeader>
