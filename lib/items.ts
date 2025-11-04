@@ -3,7 +3,7 @@ export const items = [
     id: "1",
     title: "Urban Hoodie",
     price: 79.99,
-    imgSrc: "/hoodie.jpg",
+    imgSrc: ["/hoodie.jpg","/hoodie.jpg","/hoodie.jpg","/hoodie.jpg"],
     isOnSale: false,
     category: "Hoodies",
   },

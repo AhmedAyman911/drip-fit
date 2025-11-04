@@ -1,11 +1,9 @@
 import { Item } from "@/types/ItemTypes";
 import { items } from "@/lib/items";
-
-import Image from "next/image";
 import ColorsToggle from "@/components/colors";
 import SizeToggle from "@/components/Sizes";
-
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
+import ImgCarousel from "@/components/Product page/ImgCarousel";
 
 export default async function ItemPage({ params }: { params: Promise<{ id: Item["id"] }> }) {
     const { id } = await params;
@@ -15,16 +13,13 @@ export default async function ItemPage({ params }: { params: Promise<{ id: Item[
         return <p className="p-32">Item not found</p>;
     }
 
+    const images = Array.isArray(item.imgSrc) ? item.imgSrc : [item.imgSrc];
+
     return (
         <div className="flex flex-col md:flex-row gap-10 px-6 md:px-32 pt-32 pb-10 md:pb-0">
             <div className="relative w-full md:w-1/2 flex items-center justify-center">
                 <div className="relative w-[300px] h-[300] md:w-lg md:h-[512px] aspect-square">
-                    <Image
-                        src={item.imgSrc}
-                        alt={item.title}
-                        fill
-                        className="object-cover object-top rounded-2xl shadow-lg"
-                    />
+                    <ImgCarousel imgs={images} title={item.title} />
                 </div>
             </div>
 
