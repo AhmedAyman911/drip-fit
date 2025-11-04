@@ -1,5 +1,5 @@
 export type Item = {
-  id: number;
+  id: string;
   title: string;
   imgSrc: string;
   price: number;
