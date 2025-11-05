@@ -17,9 +17,9 @@ export default async function ItemPage({ params }: { params: Promise<{ id: Item[
     const images = Array.isArray(item.imgSrc) ? item.imgSrc : [item.imgSrc];
 
     return (
-  <div className="flex flex-col lg:flex-row gap-10 px-6 lg:px-32 pt-32 pb-10 lg:pb-0">
+  <div className="flex flex-col lg:flex-row gap-10 px-6 lg:px-32 lg:pt-32 pt-24 pb-10 lg:pb-0">
     <div className="relative w-full lg:w-1/2 flex justify-center">
-      <div className="relative w-full max-w-sm h-[350px] sm:max-w-md sm:h-[450px] lg:max-w-lg lg:h-[512px]">
+      <div className="relative w-full max-w-sm h-80 sm:max-w-md lg:max-w-lg lg:h-[512px]">
         <ImgCarousel imgs={images} title={item.title} />
       </div>
     </div>

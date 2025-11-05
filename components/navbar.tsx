@@ -1,19 +1,23 @@
 import Link from "next/link"
 
-import { ShoppingCart, Search, ShoppingBag } from 'lucide-react';
+import { ShoppingCart, Search, ShoppingBag, Home, User } from 'lucide-react';
 import { ModeToggle } from "./ModeToggle";
+import HamburgerMenu from "./HamburgerMenu";
 
 const user: string = ''
 
 export default function Navebar() {
     return (
-        <nav className="bg-gray-100 dark:bg-gray-900 flex justify-between fixed top-0 md:w-full w-screen md:py-6 md:px-32 md:h-20
-            py-6 px-6 h-20 shadow-2xl border-b z-50
+        <nav className="bg-gray-100 dark:bg-gray-900 flex md:justify-between fixed top-0 md:w-full w-screen md:py-6 md:px-32 md:h-20
+            py-6 px-6 h-16 shadow-2xl border-b z-50 justify-center
         ">
-            <Link href={'/'} className=" flex gap-2">
+            <Link href={'/'} className="flex gap-2 items-center ">
                 <ShoppingBag size={28} className="text-black dark:text-white" />
                 <h2 className="md:text-xl text-md font-bold">Drip Fit</h2>
             </Link>
+            <div className="md:hidden items-center! absolute right-4 top-4">
+                <HamburgerMenu />
+            </div>
             <div className="hidden md:block relative">
                 <Search size={20} className="absolute top-2 left-2 text-black" />
                 <input
@@ -22,8 +26,8 @@ export default function Navebar() {
                     className="w-80 h-10 pl-8 py-2 rounded-md bg-gray-300 text-black"
                 />
             </div>
-            <div className="flex gap-4 ">
-                <button className=" w-16 h-9 border-2 text-black border-black dark:text-gray-200 dark:border-gray-200 flex rounded-md p-1 cursor-pointer" >
+            <div className="gap-4 hidden md:flex">
+                <button className="flex w-16 h-9 border-2 text-black border-black dark:text-gray-200 dark:border-gray-200 rounded-md p-1 cursor-pointer" >
                     <ShoppingCart className="text-black dark:text-gray-200" /> Cart
                 </button>
                 {!user && <>
@@ -32,6 +36,25 @@ export default function Navebar() {
                 </>}
                 <ModeToggle />
             </div>
+
+            <nav className="fixed bottom-0 left-0 w-full border-t bg-gray-100 dark:bg-gray-900 shadow-2xl flex justify-around items-center py-3 z-50 md:hidden">
+                <Link href="/" className="flex flex-col items-center dark:text-gray-200">
+                    <Home size={24} />
+                    <span className="text-xs mt-1">Home</span>
+                </Link>
+                <Link href="/search" className="flex flex-col items-center dark:text-gray-200">
+                    <Search size={24} />
+                    <span className="text-xs mt-1">Search</span>
+                </Link>
+                <Link href="/cart" className="flex flex-col items-center dark:text-gray-200">
+                    <ShoppingCart size={24} />
+                    <span className="text-xs mt-1">Cart</span>
+                </Link>
+                <Link href="/account" className="flex flex-col items-center dark:text-gray-200">
+                    <User size={24} />
+                    <span className="text-xs mt-1">Account</span>
+                </Link>
+            </nav>
         </nav>
     )
 }

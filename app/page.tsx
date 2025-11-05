@@ -54,7 +54,7 @@ const newArrivalItems = [
 export default function Home() {
   return (
     <>
-      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen pt-20">
+      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen md:pt-20 pt-16">
         <HeroSection />
         <NewArrivals title="New Arrivals"  items={newArrivalItems}/>
         <TopSelling title="Top Selling Products"  items={newArrivalItems}/>

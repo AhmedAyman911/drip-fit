@@ -8,7 +8,6 @@ export default function ProductsFilter() {
 
     return (
         <>
-            {/*mobile filter */}
             <div className="block md:hidden">
                 <Sheet>
                     <div className="flex justify-center">
@@ -31,7 +30,6 @@ export default function ProductsFilter() {
                 </Sheet>
             </div>
 
-            {/*web filter */}
             <div className="hidden md:block w-60 py-4 border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-semibold mb-4">Filters</h3>
                 <FilterAccordion />
