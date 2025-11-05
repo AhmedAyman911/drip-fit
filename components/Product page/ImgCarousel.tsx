@@ -14,7 +14,7 @@ interface ImgCarouselProps {
 
 export default function ImgCarousel({ imgs, title }: ImgCarouselProps) {
     return (
-        <Carousel className="w-full">
+        <Carousel className="w-full ">
             <CarouselContent className="-ml-2 md:-ml-4">
                 {imgs.map((img, index) => (
                     <CarouselItem key={index} className="pl-2 md:pl-4 basis-[90%]" >
@@ -23,14 +23,16 @@ export default function ImgCarousel({ imgs, title }: ImgCarouselProps) {
                                 src={img}
                                 alt={`${title} - Image ${index + 1}`}
                                 fill
-                                className="object-cover rounded-2xl shadow-lg"
+                                className="object-cover object-top rounded-2xl shadow-lg"
                             />
                         </div>
                     </CarouselItem>
                 ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <div className="lg:block hidden">
+                <CarouselPrevious />
+                <CarouselNext  />
+            </div>
         </Carousel>
     );
 }

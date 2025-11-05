@@ -6,6 +6,7 @@ export const items = [
     imgSrc: ["/hoodie.jpg","/hoodie.jpg","/hoodie.jpg","/hoodie.jpg"],
     isOnSale: false,
     category: "Hoodies",
+    productInfo: "Made with 100% cotton. Relaxed fit. Machine washable."
   },
   {
     id: "2",

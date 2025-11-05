@@ -6,4 +6,5 @@ export type Item = {
   category: string;
   isOnSale: boolean;
   salePrice?: number;
+  productInfo: string;
 };
