@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { ShoppingCart, Search, ShoppingBag, Home, User } from 'lucide-react';
+import {  Search, ShoppingBag, Home, User } from 'lucide-react';
 import { ModeToggle } from "./ModeToggle";
 import HamburgerMenu from "./HamburgerMenu";
 import CartSheet from "./CartSheet";
@@ -46,7 +46,7 @@ export default function Navebar() {
                     <span className="text-xs mt-1">Search</span>
                 </Link>
                 <CartSheet/>
-                <Link href="/account" className="flex flex-col items-center dark:text-gray-200">
+                <Link href="/profile" className="flex flex-col items-center dark:text-gray-200">
                     <User size={24} />
                     <span className="text-xs mt-1">Account</span>
                 </Link>
