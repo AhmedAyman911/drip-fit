@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ShoppingCart, Search, ShoppingBag, Home, User } from 'lucide-react';
 import { ModeToggle } from "./ModeToggle";
 import HamburgerMenu from "./HamburgerMenu";
+import CartSheet from "./CartSheet";
 
 const user: string = ''
 
@@ -27,9 +28,7 @@ export default function Navebar() {
                 />
             </div>
             <div className="gap-4 hidden md:flex">
-                <button className="flex w-16 h-9 border-2 text-black border-black dark:text-gray-200 dark:border-gray-200 rounded-md p-1 cursor-pointer" >
-                    <ShoppingCart className="text-black dark:text-gray-200" /> Cart
-                </button>
+                <CartSheet/>
                 {!user && <>
                     <Link href={'/login'} className="bg-black text-gray-200 dark:bg-gray-200 dark:text-black
                  px-2 py-1 w-14 h-9 rounded-md hover:bg-gray-900 dark:hover:bg-gray-200">Login</Link>
@@ -46,10 +45,7 @@ export default function Navebar() {
                     <Search size={24} />
                     <span className="text-xs mt-1">Search</span>
                 </Link>
-                <Link href="/cart" className="flex flex-col items-center dark:text-gray-200">
-                    <ShoppingCart size={24} />
-                    <span className="text-xs mt-1">Cart</span>
-                </Link>
+                <CartSheet/>
                 <Link href="/account" className="flex flex-col items-center dark:text-gray-200">
                     <User size={24} />
                     <span className="text-xs mt-1">Account</span>
