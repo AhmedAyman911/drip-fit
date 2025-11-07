@@ -5,6 +5,8 @@ import { ThemeProvider } from 'next-themes';
 import Navebar from "@/components/navbar";
 import Footer from "@/components/Footer";
 
+import { Providers } from './providers'
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -33,7 +35,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Navebar />
           <main className="grow">
-            {children}
+            <Providers>
+              {children}
+            </Providers>
           </main>
           <Footer />
         </ThemeProvider>

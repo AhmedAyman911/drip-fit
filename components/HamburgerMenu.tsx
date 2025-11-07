@@ -26,10 +26,9 @@ export default function HamburgerMenu() {
             <div className="p-2">
                 <ModeToggle/>
             </div>
-          <div className="flex gap-4">
-            <Button variant="ghost">Login</Button>
-            <Button variant="outline">Sign Up</Button>
-          </div>
+          <Link href={'/signin'} className="flex gap-4">
+            <Button variant="outline">Login</Button>
+          </Link>
         </SheetFooter>
       </SheetContent>
     </Sheet>

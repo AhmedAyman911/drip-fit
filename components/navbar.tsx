@@ -1,13 +1,15 @@
 import Link from "next/link"
 
-import {  Search, ShoppingBag, Home, User } from 'lucide-react';
+import { Search, ShoppingBag, Home, User } from 'lucide-react';
 import { ModeToggle } from "./ModeToggle";
 import HamburgerMenu from "./HamburgerMenu";
 import CartSheet from "./CartSheet";
 
-const user: string = ''
+import { getServerSession } from "next-auth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-export default function Navebar() {
+export default async function Navebar() {
+    const session = await getServerSession();
     return (
         <nav className="bg-gray-100 dark:bg-gray-900 flex md:justify-between fixed top-0 md:w-full w-screen md:py-6 md:px-32 md:h-20
             py-6 px-6 h-16 shadow-2xl border-b z-50 justify-center
@@ -28,11 +30,18 @@ export default function Navebar() {
                 />
             </div>
             <div className="gap-4 hidden md:flex">
-                <CartSheet/>
-                {!user && <>
-                    <Link href={'/login'} className="bg-black text-gray-200 dark:bg-gray-200 dark:text-black
+                <CartSheet />
+                {!session ? <>
+                    <Link href={'/signin'} className="bg-black text-gray-200 dark:bg-gray-200 dark:text-black
                  px-2 py-1 w-14 h-9 rounded-md hover:bg-gray-900 dark:hover:bg-gray-200">Login</Link>
-                </>}
+                </> :
+                    <Link href={'/profile'} >
+                        <Avatar className="h-9 w-9 border-2 dark:border-white border-black">
+                            <AvatarImage src={session.user?.image || "/test.jpg"} alt="Profile Picture" />
+                            <AvatarFallback>{session.user?.username?.slice(0, 2).toUpperCase() || "NA"}</AvatarFallback>
+                        </Avatar>
+                    </Link>
+                }
                 <ModeToggle />
             </div>
 
@@ -45,7 +54,7 @@ export default function Navebar() {
                     <Search size={24} />
                     <span className="text-xs mt-1">Search</span>
                 </Link>
-                <CartSheet/>
+                <CartSheet />
                 <Link href="/profile" className="flex flex-col items-center dark:text-gray-200">
                     <User size={24} />
                     <span className="text-xs mt-1">Account</span>
