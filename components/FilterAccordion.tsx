@@ -48,7 +48,7 @@ export default function FilterAccordion() {
             <AccordionItem value="color">
                 <AccordionTrigger>Colors</AccordionTrigger>
                 <AccordionContent className="flex gap-2 flex-wrap pt-2">
-                    <ColorsToggle />
+                    <ColorsToggle type="multiple" />
                 </AccordionContent>
             </AccordionItem>
         </Accordion>

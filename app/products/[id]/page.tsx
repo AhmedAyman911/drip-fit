@@ -46,7 +46,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: Item[
 
       <div>
         <p className="font-medium mb-1">Available Colors</p>
-        <ColorsToggle />
+        <ColorsToggle type="single" colors={item.colors} />
       </div>
 
       <div>

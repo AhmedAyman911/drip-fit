@@ -84,4 +84,29 @@ export const items = [
     isOnSale: true,
     category: "Footwear",
   },
+  {
+    id: "11",
+    "title": "Nike Air Force 1",
+    "productInfo": "Classic white sneakers",
+    "price": 119.99,
+    "salePrice": 99.99,
+    "category": "Shoes",
+    "imgSrc": [
+        "/air-force-1.jpg",
+        "/air-force-2.jpg",
+        "/air-force-3.jpg"
+    ],
+    "isOnSale": true,
+    "colors": [
+        "white"
+    ],
+    "sizes": [
+        "40",
+        "41",
+        "42"
+    ],
+    "stock": 50,
+    "createdAt": "2025-11-09T13:40:46.416Z",
+    "updatedAt": "2025-11-09T14:05:42.884Z"
+}
 ];
