@@ -41,7 +41,8 @@ export default function FilterAccordion() {
             <AccordionItem value="size">
                 <AccordionTrigger>Size</AccordionTrigger>
                 <AccordionContent className="flex gap-2 flex-wrap pt-2">
-                    <SizeToggle />
+                    <SizeToggle type="multiple" />
+                    <SizeToggle type="multiple" sizes={["40", "41", "42", "43", "44"]} />
                 </AccordionContent>
             </AccordionItem>
 

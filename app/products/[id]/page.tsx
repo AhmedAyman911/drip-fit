@@ -51,7 +51,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: Item[
 
       <div>
         <p className="font-medium mb-1">Size Options</p>
-        <SizeToggle />
+        <SizeToggle type="single" sizes={item.sizes} />
       </div>
 
       <Button className="mt-4 w-full sm:w-auto" size="lg">
