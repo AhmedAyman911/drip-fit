@@ -1,10 +1,13 @@
 export type Item = {
   id: string;
   title: string;
-  imgSrc: string|string[];
+  imgSrc: string[];
   price: number;
   category: string;
   isOnSale: boolean;
   salePrice?: number;
-  productInfo: string;
+  description?: string;
+  colors: string[];
+  sizes: string[];
+  stock: number;
 };
