@@ -11,17 +11,17 @@ import { Item } from "@/types/ItemTypes"
 
 interface CoustumeCarouselProps {
     title: string;
-    items: Item[]
+    products: Item[]
 }
 
-export default function CoustumeCarousel({ title, items }: CoustumeCarouselProps) {
+export default function CoustumeCarousel({ title, products }: CoustumeCarouselProps) {
     return (
         <section className="pt-12 bg-gray-100 dark:bg-gray-900">
             <div className="container mx-auto max-w-6xl ">
                 <Carousel>
                     <h2 className="md:text-left text-center md:text-3xl text-2xl font-bold mb-8 md:px-5">{title}</h2>
                     <CarouselContent className="px-6">
-                        {items.map((item) => (
+                        {products.map((item) => (
                             <CarouselItem
                                 key={item.id}
                                 className="basis-8xl"
