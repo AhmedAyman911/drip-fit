@@ -1,17 +1,21 @@
-import { Item as ItemType } from '@/types/ItemTypes';
+import { Item as productTypes } from '@/types/ItemTypes';
 import { useQuery } from '@tanstack/react-query'
+import axiosInstance from '@/lib/axiosInstance';
+import { APIDetail } from '@/types/ApiDetail';
 
-export const useSingleProduct = (id: string | undefined) => {
+const fetchProductByID = async (id: string) => {
+    const response = await axiosInstance.get<APIDetail<"Product", productTypes>>(`/api/products/${id}`)
+    if (!response.data) {
+        throw new Error("Empty response");
+    }
+    return response.data.object
+}
+
+
+export const useSingleProduct = (id: string) => {
     return useQuery({
-        queryKey: ['products', id],
-        queryFn: async (): Promise<ItemType> => {
-            if (!id) throw new Error('Product ID is required')
-
-            const res = await fetch(`/api/products/${id}`)
-            if (!res.ok) throw new Error('Failed to fetch product')
-            return res.json()
-        },
-        enabled: !!id,
+        queryKey: ['product', id],
+        queryFn: () => fetchProductByID(id),
         staleTime: 1000 * 60 * 5,
         refetchOnWindowFocus: false,
     })

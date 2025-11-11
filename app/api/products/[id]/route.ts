@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createApiResponse } from "@/lib/apiResponse";
 
 export async function GET(
     req: Request,
@@ -15,7 +16,7 @@ export async function GET(
             return NextResponse.json({ error: "Not found" }, { status: 404 });
         }
 
-        return NextResponse.json(product);
+        return NextResponse.json(createApiResponse("Product", product));;
     } catch (error) {
         console.error("Error fetching product:", error);
         return NextResponse.json(
@@ -34,7 +35,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
             data,
         });
 
-        return NextResponse.json(updated);
+        return NextResponse.json(createApiResponse("Product", updated));
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
