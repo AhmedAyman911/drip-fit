@@ -10,6 +10,4 @@ export type Item = {
   colors: string[];
   sizes: string[];
   stock: number;
-  createdAt: string;
-  updatedAt: string;
 };

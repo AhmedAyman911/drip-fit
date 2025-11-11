@@ -8,8 +8,10 @@ import CartSheet from "./CartSheet";
 import { getServerSession } from "next-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
 export default async function Navebar() {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     return (
         <nav className="bg-gray-100 dark:bg-gray-900 flex md:justify-between fixed top-0 md:w-full w-screen md:py-6 md:px-32 md:h-20
             py-6 px-6 h-16 shadow-2xl border-b z-50 justify-center
@@ -32,7 +34,7 @@ export default async function Navebar() {
             <div className="gap-4 hidden md:flex">
                 <CartSheet />
                 {!session ? <>
-                    <Link href={'/signin'} className="bg-black text-gray-200 dark:bg-gray-200 dark:text-black
+                    <Link href={'/api/auth/signin'} className="bg-black text-gray-200 dark:bg-gray-200 dark:text-black
                  px-2 py-1 w-14 h-9 rounded-md hover:bg-gray-900 dark:hover:bg-gray-200">Login</Link>
                 </> :
                     <Link href={'/profile'} >
