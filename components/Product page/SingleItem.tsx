@@ -1,19 +1,25 @@
 'use client'
-
+import { useState } from "react";
 import ColorsToggle from "@/components/colors";
 import SizeToggle from "@/components/Sizes";
-import { Button } from "@/components/ui/button";
 import ImgCarousel from "@/components/Product page/ImgCarousel";
 import ProductAccordion from "@/components/Product page/ProductAccordion";
 
 import { useSingleProduct } from "@/hooks/useSingleProduct";
+import AddToCartButton from "./AddToCartButton";
+
+
 
 export default function SingleItem({ id }: { id: string }) {
+    const [selectedColor, setSelectedColor] = useState<string | null>(null)
+    const [selectedSize, setSelectedSize] = useState<string | null>(null)
+
     const { data: product, isLoading, error } = useSingleProduct(id)
 
     if (isLoading) return <div>Loading...</div>
     if (error) return <div>Error: {error.message}</div>
     if (!product) return <div>Product not found</div>
+
 
     return (
         <div className="flex flex-col lg:flex-row gap-10 px-6 lg:px-32 lg:pt-32 pt-24 pb-10 lg:pb-0">
@@ -45,17 +51,19 @@ export default function SingleItem({ id }: { id: string }) {
 
                 <div>
                     <p className="font-medium mb-1">Available Colors</p>
-                    <ColorsToggle type="single" colors={product.colors} />
+                    <ColorsToggle
+                        type="single"
+                        colors={product.colors}
+                        onColorChange={(color) => setSelectedColor(color)}
+                    />
                 </div>
 
                 <div>
                     <p className="font-medium mb-1">Size Options</p>
-                    <SizeToggle type="single" sizes={product.sizes} />
+                    <SizeToggle type="single" sizes={product.sizes} onsizeChange={(size) => setSelectedSize(size)} />
                 </div>
 
-                <Button className="mt-4 w-full sm:w-auto" size="lg">
-                    Add to Cart
-                </Button>
+                <AddToCartButton item={product} selectedColor={selectedColor} selectedSize={selectedSize} />
 
                 <div className="lg:mb-4">
                     <ProductAccordion productInfo={product.description || "No information available."} />

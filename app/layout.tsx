@@ -6,6 +6,7 @@ import Navebar from "@/components/navbar";
 import Footer from "@/components/Footer";
 
 import { Providers } from './providers'
+import { Toaster } from "sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({
           <main className="grow">
             <Providers>
               {children}
+              <Toaster position="top-right" richColors />
             </Providers>
           </main>
           <Footer />

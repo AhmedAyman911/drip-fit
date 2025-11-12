@@ -1,11 +1,21 @@
+'use client'
 import { Sheet, SheetTrigger, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { items } from "@/lib/items";
+
+import { useCartStore } from '@/store/cartStore'
 
 export default function CartSheet() {
+
+    const items = useCartStore((state) => state.cart)
+    const increase = useCartStore((state) => state.increase);
+    const decrease = useCartStore((state) => state.decrease);
+    const remove = useCartStore((state) => state.remove);
+    const totalItems = useCartStore((state) => state.totalItems());
+    const totalPrice = useCartStore((state) => state.totalPrice());
+
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -26,41 +36,80 @@ export default function CartSheet() {
                     <h2 className="text-lg font-bold">Your Cart</h2>
                 </SheetHeader>
                 {items?.length > 0 ? (
-                    <div className="flex flex-col gap-4 max-h-[60vh] pr-2">
+                    <div className="flex flex-col gap-5 max-h-[60vh] overflow-y-auto pr-2">
                         {items.map((item) => (
                             <div
                                 key={item.id}
-                                className="flex items-center justify-between border-b pb-3 mb-3"
+                                className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4"
                             >
-                                <div className="flex gap-3 items-center">
+                                <div className="flex gap-4 items-center">
                                     <Image
                                         src={Array.isArray(item.imgSrc) ? item.imgSrc[0] : item.imgSrc}
                                         alt={item.title}
-                                        width={1080}
-                                        height={1080}
-                                        className="lg:w-32 w-20 lg:h-32 h-20 rounded-md object-cover object-top"
+                                        width={120}
+                                        height={120}
+                                        className="w-20 h-20 lg:w-28 lg:h-28 rounded-md object-cover object-top shadow-sm"
                                     />
-                                    <div>
-                                        <h3 className="font-medium text-sm">{item.title}</h3>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                                            Qty: {item.quantity || 1}
+
+                                    <div className="flex flex-col gap-1">
+                                        <h3 className="font-semibold text-sm lg:text-base text-gray-900 dark:text-gray-100">
+                                            {item.title}
+                                        </h3>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            Color: <span className="capitalize">{item.selectedColor || "N/A"}</span>
                                         </p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            Size: <span className="capitalize">{item.selectedSize || "N/A"}</span>
+                                        </p>
+
+                                        <div className="flex items-center gap-3 mt-2">
+                                            <button
+                                                onClick={() => decrease(item.id, item.selectedColor, item.selectedSize)}
+                                                className="w-7 h-7 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full font-bold transition"
+                                            >
+                                                -
+                                            </button>
+
+                                            <span className="text-sm font-medium text-gray-800 dark:text-white min-w-5 text-center">
+                                                {item.quantity}
+                                            </span>
+
+                                            <button
+                                                onClick={() => increase(item.id, item.selectedColor, item.selectedSize)}
+                                                className="w-7 h-7 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full font-bold transition"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="font-semibold text-sm">${item.price.toFixed(2)}</p>
-                                    <button className="text-xs text-red-500 hover:underline mt-1">
+
+                                <div className="text-right flex-col">
+                                    <p className="font-semibold text-sm lg:text-base text-gray-900 dark:text-gray-100">
+                                        ${item.price.toFixed(2)}
+                                    </p>
+                                    <button
+                                        onClick={() => remove(item.id, item.selectedColor, item.selectedSize)}
+                                        className="ml-2 text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-500 font-medium transition"
+                                    >
                                         Remove
                                     </button>
                                 </div>
                             </div>
                         ))}
+
+
+                        <div className="flex flex-col gap-2">
+                            <p>Total Items: {totalItems}</p>
+                            <p>Total Price: ${totalPrice.toFixed(2)}</p>
+                        </div>
+
                         <div className="pb-6">
                             <Link href="/checkout" className="w-full">
-                            <Button className="w-full">Proceed to Checkout</Button>
-                        </Link>
+                                <Button className="w-full">Proceed to Checkout</Button>
+                            </Link>
                         </div>
-                        
+
                     </div>
                 ) : (
                     <div className="flex flex-col gap-4 items-center justify-center h-[60vh]">
@@ -68,10 +117,6 @@ export default function CartSheet() {
                         <ShoppingCart className="w-12 h-12 text-gray-400 dark:text-gray-500" />
                     </div>
                 )}
-
-
-
-
 
             </SheetContent>
         </Sheet>
