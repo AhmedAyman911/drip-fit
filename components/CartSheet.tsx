@@ -9,13 +9,13 @@ export default function CartSheet() {
     return (
         <Sheet>
             <SheetTrigger asChild>
-                <button className="hidden lg:flex w-16 h-9 border-2 text-black border-black dark:text-gray-200 dark:border-gray-200 rounded-md p-1 cursor-pointer">
+                <button className="hidden lg:flex md:flex w-16 h-9 border-2 text-black border-black dark:text-gray-200 dark:border-gray-200 rounded-md p-1 cursor-pointer">
                     <ShoppingCart className="text-black dark:text-gray-200" /> Cart
                 </button>
             </SheetTrigger>
 
             <SheetTrigger asChild>
-                <button className="lg:hidden flex flex-col items-center dark:text-gray-200">
+                <button className="lg:hidden md:hidden flex flex-col items-center dark:text-gray-200">
                     <ShoppingCart size={24} />
                     <span className="text-xs mt-1">Cart</span>
                 </button>

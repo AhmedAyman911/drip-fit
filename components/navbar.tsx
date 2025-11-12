@@ -13,7 +13,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 export default async function Navebar() {
     const session = await getServerSession(authOptions);
     return (
-        <nav className="bg-gray-100 dark:bg-gray-900 flex md:justify-between fixed top-0 md:w-full w-screen md:py-6 md:px-32 md:h-20
+        <nav className="bg-gray-100 dark:bg-gray-900 flex md:justify-between fixed top-0 md:w-full w-screen md:py-6 lg:px-32 md:h-20
             py-6 px-6 h-16 shadow-2xl border-b z-50 justify-center
         ">
             <Link href={'/'} className="flex gap-2 items-center ">

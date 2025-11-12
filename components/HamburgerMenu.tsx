@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "./ModeToggle";
-
-export default function HamburgerMenu() {
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import SignoutButton from "./auth/SignoutButton";
+export default async function HamburgerMenu() {
+  const session = await getServerSession(authOptions);
   return (
     <Sheet>
       <SheetTrigger asChild >
@@ -23,12 +26,15 @@ export default function HamburgerMenu() {
           <Link href="/products" className="hover:underline">Woman</Link>
         </nav>
         <SheetFooter>
-            <div className="p-2">
-                <ModeToggle/>
-            </div>
-          <Link href={'/signin'} className="flex gap-4">
-            <Button variant="outline">Login</Button>
-          </Link>
+          <div className="p-2">
+            <ModeToggle />
+          </div>
+          {!session ?
+            <Link href={'/api/auth/signin'} className="flex gap-4">
+              <Button variant="outline">Login</Button>
+            </Link> :
+            <SignoutButton />
+          }
         </SheetFooter>
       </SheetContent>
     </Sheet>
