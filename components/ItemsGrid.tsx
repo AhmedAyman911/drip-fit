@@ -1,28 +1,81 @@
+// components/ItemsGridClient.tsx
 'use client'
 import { useProducts } from '@/hooks/useProducts'
 import ItemCard from "@/components/ItemCard";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, useEffect } from "react";
+import { ProductsPagination } from './productsPagination';
+import { useSearchParams } from 'next/navigation';
 
-interface ItemsGridProps extends HTMLAttributes<HTMLDivElement> {
+interface ItemsGridClientProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
 }
 
-export default function ItemsGrid({ className, title, ...props }: ItemsGridProps) {
+export default function ItemsGridClient({ className, title, ...props }: ItemsGridClientProps) {
+  const searchParams = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
 
-  const { data: products, isLoading, error} = useProducts()
-  if (isLoading) return <p>Loading...</p>
-  if (error) return <p>Error fetching products</p>
-  if (!products) return <div className="flex flex-wrap gap-4 justify-center md:justify-start">Products not found</div>
-  return (
-    <div className={className} {...props}>
-      <h1 className="text-3xl md:text-5xl font-bold p-4 text-center md:text-left">
-        {title}
-      </h1>
-      <div className="flex flex-wrap gap-4 justify-center md:justify-start ">
-        {products.map((item) => (
-          <ItemCard key={item.id} item={item} />
-        ))}
+  const { data, isLoading, error } = useProducts(currentPage);
+
+  // Debug logs
+  useEffect(() => {
+    console.log('Current page from URL:', currentPage);
+    console.log('Data:', data);
+  }, [currentPage, data]);
+
+  if (isLoading) {
+    return (
+      <div className={className} {...props}>
+        <h1 className="text-3xl md:text-5xl font-bold p-4 text-center md:text-left">
+          {title}
+        </h1>
+        <p className="text-center p-8">Loading...</p>
       </div>
-    </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={className} {...props}>
+        <h1 className="text-3xl md:text-5xl font-bold p-4 text-center md:text-left">
+          {title}
+        </h1>
+        <p className="text-center p-8 text-red-500">Error fetching products</p>
+      </div>
+    );
+  }
+
+  if (!data?.products || data.products.length === 0) {
+    return (
+      <div className={className} {...props}>
+        <h1 className="text-3xl md:text-5xl font-bold p-4 text-center md:text-left">
+          {title}
+        </h1>
+        <div className="text-center p-8">No products found</div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className={className} {...props}>
+        <h1 className="text-3xl md:text-5xl font-bold p-4 text-center md:text-left">
+          {title}
+        </h1>
+        <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+          {data.products.map((item) => (
+            <ItemCard key={item.id} item={item} />
+          ))}
+        </div>
+        {data.pagination && (
+        <div className="flex justify-center p-4">
+          <ProductsPagination
+            currentPage={data.pagination.currentPage}
+            totalPages={data.pagination.totalPages}
+          />
+        </div>
+      )}
+      </div>
+      
+    </>
   );
 }
