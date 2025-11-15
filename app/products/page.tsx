@@ -11,17 +11,18 @@ export default function ProductsPage() {
     <div>
       <div className="flex pt-20 md:px-32 flex-col md:flex-row justify-center">
         <ProductsFilter />
-        
-          <ItemsGrid
-            title="All Products"
-            className="flex-1 flex-wrap gap-4 justify-between md:justify-start md:pl-16"
-          />
+
+        <ItemsGrid
+          title="All Products"
+          className="flex-1 flex-wrap gap-4 justify-between md:justify-start md:pl-16"
+        />
       </div>
     </div>
   );
 }
 
-export async function generateMetadata({ searchParams }: ProductsPageProps) {
+export async function generateMetadata(props: ProductsPageProps) {
+  const searchParams = await props.searchParams;
   const page = Number(searchParams.page) || 1;
 
   return {

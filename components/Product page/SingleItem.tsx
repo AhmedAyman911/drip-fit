@@ -31,7 +31,7 @@ export default function SingleItem({ id }: { id: string }) {
 
             <div className="flex flex-col gap-4 lg:gap-6 lg:w-1/2">
                 <span className="text-sm text-gray-500 uppercase tracking-wider">
-                    {product.category}
+                    {product.category} | {product.gender}
                 </span>
 
                 <h1 className="text-3xl sm:text-4xl font-bold">{product.title}</h1>

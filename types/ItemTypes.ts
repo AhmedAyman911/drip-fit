@@ -10,4 +10,5 @@ export type Item = {
   colors: string[];
   sizes: string[];
   stock: number;
+  gender: string
 };

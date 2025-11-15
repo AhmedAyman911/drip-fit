@@ -10,14 +10,18 @@ export default function FilterAccordion() {
             <AccordionItem value="gender">
                 <AccordionTrigger>Gender</AccordionTrigger>
                 <AccordionContent>
-                    <div className="space-y-2">
+                    <div className="space-y-2 uppercase">
                         <div className="flex items-center gap-2">
                             <Checkbox id="man" />
-                            <label htmlFor="man">MAN</label>
+                            <label htmlFor="man">man</label>
                         </div>
                         <div className="flex items-center gap-2">
                             <Checkbox id="woman" />
-                            <label htmlFor="woman">WOMAN</label>
+                            <label htmlFor="woman">woman</label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Checkbox id="unisex" />
+                            <label htmlFor="unisex">unisex</label>
                         </div>
                     </div>
                 </AccordionContent>
