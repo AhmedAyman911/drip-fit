@@ -1,34 +1,53 @@
 'use client'
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useState } from "react"
+import { useFilterStore } from "@/store/filterStore";
 
 interface ColorsToggleProps {
     colors?: string[];
     type: "single" | "multiple"
     onColorChange?: (color: string | null) => void
+    useFilters?: boolean;
 }
 
 const defaultColors = ["black", "white", "red", "blue", "yellow", "gray"];
 
-export default function ColorsToggle({ colors, type, onColorChange }: ColorsToggleProps) {
+export default function ColorsToggle({ colors, type, onColorChange, useFilters = false }: ColorsToggleProps) {
     const items = colors || defaultColors;
-    const [selectedColor, setSelectedColor] = useState<string | string[] | null>(null)
+    const [localSelectedColor, setLocalSelectedColor] = useState<string | string[] | null>(null);
+    const { colors: filterColors, setColors } = useFilterStore();
+    const selectedColor = useFilters ? filterColors : localSelectedColor;
 
     const handleChange = (value: string | string[]) => {
-        setSelectedColor(value)
-        if (onColorChange) {
-            if (Array.isArray(value)) {
-                onColorChange(value[0] ?? null)
+        if (useFilters) {
+            if (type === "multiple") {
+                const colorArray = Array.isArray(value) ? value : (value ? [value] : []);
+                setColors(colorArray.length > 0 ? colorArray : null);
             } else {
-                onColorChange(value)
+                setColors(value ? [value as string] : null);
+            }
+        } else {
+            setLocalSelectedColor(value);
+            
+            if (onColorChange) {
+                if (Array.isArray(value)) {
+                    onColorChange(value[0] ?? null);
+                } else {
+                    onColorChange(value || null);
+                }
             }
         }
     }
+
     if (type === "single") {
+        const singleValue = useFilters 
+            ? (Array.isArray(selectedColor) ? selectedColor[0] : selectedColor) 
+            : (selectedColor as string | undefined);
+
         return (
             <ToggleGroup
                 type="single"
-                value={selectedColor as string | undefined}
+                value={singleValue || undefined}
                 onValueChange={handleChange}
                 className="flex gap-2 px-2 flex-wrap"
             >
@@ -44,10 +63,12 @@ export default function ColorsToggle({ colors, type, onColorChange }: ColorsTogg
         )
     }
 
+    const multipleValue = Array.isArray(selectedColor) ? selectedColor : [];
+
     return (
         <ToggleGroup
             type="multiple"
-            value={Array.isArray(selectedColor) ? selectedColor : []}
+            value={multipleValue}
             onValueChange={handleChange}
             className="flex gap-2 px-2 flex-wrap"
         >
@@ -77,7 +98,7 @@ function getColorClass(color: string) {
         case "yellow":
             return "bg-yellow-300 hover:bg-yellow-400 border-yellow-500 hover:border-yellow-500";
         case "gray":
-            return "bg-gray-500 hover:bg-gary-700 border-gary-600 hover:border-gary-800";
+            return "bg-gray-500 hover:bg-gray-700 border-gray-600 hover:border-gray-800";
         default:
             return `bg-[${color}] border-gray-400`;
     }
@@ -93,6 +114,10 @@ function getRingClass(color: string) {
             return "ring-red-500";
         case "blue":
             return "ring-blue-500";
+        case "yellow":
+            return "ring-yellow-400";
+        case "gray":
+            return "ring-gray-500";
         default:
             return "ring-gray-400";
     }

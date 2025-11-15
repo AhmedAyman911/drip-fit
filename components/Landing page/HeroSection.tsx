@@ -21,7 +21,7 @@ export default function HeroSection() {
                 </p>
                 <div className="md:pt-12 pt-4">
                     <Link
-                        href={'/products'}
+                        href={'/products?page=1'}
                         className="mt-6 bg-black dark:bg-white text-white dark:text-black md:px-6 md:py-3 px-3 py-2 rounded-lg md:text-lg text-md font-medium hover:opacity-90 transition">
                         Explore Now
                     </Link>

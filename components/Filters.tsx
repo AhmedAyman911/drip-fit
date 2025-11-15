@@ -23,7 +23,7 @@ export default function ProductsFilter() {
                             <SheetTitle>Filters</SheetTitle>
                         </SheetHeader>
                         <div className="px-4">
-                            <FilterAccordion />
+                            <FilterAccordion  />
                         </div>
 
                     </SheetContent>

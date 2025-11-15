@@ -18,7 +18,7 @@ export default function ImgCarousel({ imgs, title }: ImgCarouselProps) {
             <CarouselContent className="-ml-2 md:-ml-4">
                 {imgs.map((img, index) => (
                     <CarouselItem key={index} className="pl-2 md:pl-4 basis-[90%]" >
-                        <div className="relative w-full aspect-square">
+                        <div className="relative w-full aspect-square ">
                             <Image
                                 src={img}
                                 alt={`${title} - Image ${index + 1}`}

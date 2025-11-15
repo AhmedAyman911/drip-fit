@@ -9,9 +9,41 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '12');
     const skip = (page - 1) * limit;
 
-    const totalCount = await prisma.product.count();
+    const gender = searchParams.get('gender')?.split(',').filter(Boolean);
+    const colors = searchParams.get('colors')?.split(',').filter(Boolean);
+    const sizes = searchParams.get('sizes')?.split(',').filter(Boolean);
+    const category = searchParams.get('category')?.split(',').filter(Boolean);
+    const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : null;
+    const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : null;
+
+     const where: any = {};
+
+    if (gender && gender.length > 0) {
+      where.gender = { in: gender };
+    }
+
+    if (category && category.length > 0) {
+      where.category = { in: category };
+    }
+
+    if (colors && colors.length > 0) {
+      where.colors = { hasSome: colors };
+    }
+
+    if (sizes && sizes.length > 0) {
+      where.sizes = { hasSome: sizes };
+    }
+
+    if (minPrice !== null || maxPrice !== null) {
+      where.price = {};
+      if (minPrice !== null) where.price.gte = minPrice;
+      if (maxPrice !== null) where.price.lte = maxPrice;
+    }
+
+    const totalCount = await prisma.product.count({where});
 
     const products = await prisma.product.findMany({
+      where,
       skip,
       take: limit,
       orderBy: {
@@ -59,6 +91,7 @@ export async function POST(req: Request) {
         colors: data.colors ?? [],
         sizes: data.sizes ?? [],
         stock: data.stock ?? 0,
+        gender: data.gender,
       },
     });
 
