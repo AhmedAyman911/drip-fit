@@ -4,12 +4,12 @@ import { Item } from "@/types/ItemTypes";
 
 export default function ItemCard({ item }: { item: Item }) {
 
-  const imgSrc = Array.isArray(item.imgSrc) ? item.imgSrc[0] : item.imgSrc;
+
 
   return (
     <Link href={`/products/${item.id}`} className="flex flex-col md:w-80 w-64">
       <div className="relative aspect-square overflow-hidden">
-        <Image alt="item img" src={imgSrc} fill className="object-cover object-top rounded-2xl" />
+        <Image alt={item.title} src={item.imgSrc[0]} fill className="object-cover object-top rounded-2xl" />
         {item.isOnSale && (
           <span className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-2xl">
             Sale
