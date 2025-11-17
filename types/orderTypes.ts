@@ -1,19 +1,4 @@
-export interface Product {
-  id: string;
-  title: string;
-  description: string | null;
-  price: number;
-  salePrice: number | null;
-  category: string;
-  imgSrc: string[];
-  isOnSale: boolean;
-  colors: string[];
-  sizes: string[];
-  stock: number;
-  gender: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Item } from "./ItemTypes";
 
 export interface OrderItem {
   id: string;
@@ -21,7 +6,7 @@ export interface OrderItem {
   price: number;
   orderId: string;
   productId: string;
-  product: Product;
+  product: Item;
 }
 
 export interface Order {

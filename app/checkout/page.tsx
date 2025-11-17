@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useActionState, useEffect } from 'react';
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 type FormState = {
   errors?: {
@@ -84,11 +85,13 @@ export default function CheckoutPage() {
 
       const order = await createOrderMutation.mutateAsync(orderData);
       clearCart();
+      toast.success('Order placed successfully')
       console.log(order)
       router.push(`/`);
 
       return { success: true };
     } catch (err) {
+      toast.warning('Failed to place order')
       return {
         errors: {
           general: [err instanceof Error ? err.message : 'Failed to place order'],

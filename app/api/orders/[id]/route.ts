@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -65,7 +65,7 @@ export async function PATCH(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -171,11 +171,13 @@ export async function PATCH(
 // DELETE - Cancel an order (soft delete by updating status)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -196,7 +198,7 @@ export async function DELETE(
 
     const order = await prisma.order.findFirst({
       where: {
-        id: params.orderId,
+        id: id,
         userId: user.id
       },
       include: {
@@ -226,7 +228,7 @@ export async function DELETE(
     // Cancel order and restore stock
     await prisma.$transaction(async (tx) => {
       await tx.order.update({
-        where: { id: params.orderId },
+        where: { id: id },
         data: { status: 'cancelled' }
       });
 

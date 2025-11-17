@@ -90,8 +90,8 @@ export const useCancelOrder = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (orderId: string) => cancelOrder(orderId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['orders'] });
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['orders'] });
         },
     });
 }

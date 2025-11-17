@@ -11,4 +11,6 @@ export type Item = {
   sizes: string[];
   stock: number;
   gender: string
+  createdAt: Date;
+  updatedAt: Date;
 };

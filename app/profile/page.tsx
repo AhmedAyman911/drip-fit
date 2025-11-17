@@ -1,46 +1,30 @@
+'use client';
+
 import { Card, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-
-import { getServerSession } from "next-auth";
+import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-
 import SignoutButton from "@/components/auth/SignoutButton";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { prisma } from "@/lib/prisma";
 import Image from "next/image"
 import { Phone } from "lucide-react"
+import CancelOrderButton from "@/components/CancelOrderButton"
+import { useOrders } from "@/hooks/useOrders";
+import {  Order, OrderItem } from "@/types/orderTypes";
 
-export default async function ProfilePage() {
-    const session = await getServerSession(authOptions);
+export default function ProfilePage() {
+    const { data: session, status } = useSession();
+    const { data: orders = [], isLoading } = useOrders();
+
+    if (status === "loading" || isLoading) {
+        return <div className="px-6 md:px-32 md:py-32 py-24">Loading...</div>;
+    }
 
     if (!session) {
         redirect("/signin");
     }
-
-    // Fetch user with orders
-    const user = await prisma.user.findUnique({
-        where: { email: session.user?.email },
-        include: {
-            orders: {
-                include: {
-                    items: {
-                        include: {
-                            product: true
-                        }
-                    }
-                },
-                orderBy: {
-                    createdAt: 'desc'
-                },
-                take: 10
-            }
-        }
-    });
-
-    const orders = user?.orders || [];
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -90,16 +74,16 @@ export default async function ProfilePage() {
 
                 {orders.length > 0 ? (
                     <div className="space-y-6">
-                        {orders.map((order) => (
-                            <div 
-                                key={order.id} 
+                        {orders.map((order: Order) => (
+                            <div
+                                key={order.id}
                                 className="border p-6 rounded-lg shadow-lg dark:border-gray-700 dark:bg-gray-800"
                             >
                                 <div className="flex justify-between items-start mb-6 pb-4 border-b dark:border-gray-700">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-3">
                                             <span className="lg:text-lg text-sm font-semibold">
-                                                Order #{order.id.slice(0,8).toUpperCase()}
+                                                Order #{order.id.slice(0, 8).toUpperCase()}
                                             </span>
                                             <Badge className={getStatusColor(order.status)}>
                                                 {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -114,7 +98,7 @@ export default async function ProfilePage() {
                                             })}
                                         </p>
                                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                                            {order.items.length} item{order.items.length > 1 ? 's' : ''} • 
+                                            {order.items.length} item{order.items.length > 1 ? 's' : ''} •
                                             Shipping to {order.city}, {order.country}
                                         </p>
                                     </div>
@@ -125,7 +109,7 @@ export default async function ProfilePage() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    {order.items.map((item) => (
+                                    {order.items.map((item:OrderItem) => (
                                         <div key={item.id} className="flex gap-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
                                             {item.product.imgSrc[0] && (
                                                 <Image
@@ -161,7 +145,6 @@ export default async function ProfilePage() {
                                     ))}
                                 </div>
 
-                                {/* Shipping Address */}
                                 <div className="mt-6 pt-4 border-t dark:border-gray-700">
                                     <h4 className="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                                         Shipping Address
@@ -173,7 +156,12 @@ export default async function ProfilePage() {
                                             {order.state && `, ${order.state}`} {order.postalCode}
                                         </p>
                                         <p>{order.country}</p>
-                                        <p className="pt-2 flex gap-1"><Phone className="w-4 h-4"/> {order.phoneNumber}</p>
+                                        <p className="pt-2 flex gap-1"><Phone className="w-4 h-4" /> {order.phoneNumber}</p>
+                                        {(order.status === "pending" || order.status === "processing") && (
+                                            <div className="pt-4">
+                                                <CancelOrderButton id={order.id} />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -182,8 +170,8 @@ export default async function ProfilePage() {
                 ) : (
                     <div className="text-center py-12 border rounded-lg dark:border-gray-700">
                         <p className="text-gray-500 dark:text-gray-400 mb-4">No orders found.</p>
-                        <Link 
-                            href="/shop"
+                        <Link
+                            href="/products"
                             className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         >
                             Start Shopping

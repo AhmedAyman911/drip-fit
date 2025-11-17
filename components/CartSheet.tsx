@@ -1,5 +1,5 @@
 'use client'
-import { Sheet, SheetTrigger, SheetContent, SheetHeader } from "@/components/ui/sheet";
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetClose } from "@/components/ui/sheet";
 import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -105,9 +105,13 @@ export default function CartSheet() {
                         </div>
 
                         <div className="pb-6">
+
                             <Link href="/checkout" className="w-full">
-                                <Button className="w-full">Proceed to Checkout</Button>
+                                <SheetClose>
+                                    <Button className="w-full">Proceed to Checkout</Button>
+                                </SheetClose>
                             </Link>
+
                         </div>
 
                     </div>
