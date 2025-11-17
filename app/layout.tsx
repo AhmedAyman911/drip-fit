@@ -34,9 +34,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col dark:bg-gray-900 bg-gray-100 `}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Navebar />
+          
           <main className="grow">
             <Providers>
+              <Navebar />
               {children}
               <Toaster position="top-right" richColors />
             </Providers>

@@ -5,6 +5,7 @@ import { createApiResponse } from "@/lib/apiResponse";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
     const skip = (page - 1) * limit;
@@ -16,7 +17,24 @@ export async function GET(request: Request) {
     const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : null;
     const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : null;
 
-     const where: any = {};
+    const where: any = {};
+
+    if (search && search.trim()) {
+      where.OR = [
+        {
+          title: {
+            contains: search.trim(),
+            mode: 'insensitive', 
+          },
+        },
+        {
+          description: {
+            contains: search.trim(),
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
 
     if (gender && gender.length > 0) {
       where.gender = { in: gender };
@@ -40,7 +58,7 @@ export async function GET(request: Request) {
       if (maxPrice !== null) where.price.lte = maxPrice;
     }
 
-    const totalCount = await prisma.product.count({where});
+    const totalCount = await prisma.product.count({ where });
 
     const products = await prisma.product.findMany({
       where,

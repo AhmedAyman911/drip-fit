@@ -21,6 +21,7 @@ interface ProductsWithPagination {
 interface FetchProductsParams {
   page?: number;
   limit?: number;
+  search?: string | null;
   gender?: string[] | null;
   colors?: string[] | null;
   sizes?: string[] | null;
@@ -32,6 +33,7 @@ interface FetchProductsParams {
 const fetchProducts = async ({
   page = 1,
   limit = 12,
+  search,
   gender,
   colors,
   sizes,
@@ -44,6 +46,7 @@ const fetchProducts = async ({
     limit: limit.toString(),
   });
 
+  if (search && search.trim()) params.append('search', search.trim());
   if (gender && gender.length > 0) params.append('gender', gender.join(','));
   if (colors && colors.length > 0) params.append('colors', colors.join(','));
   if (sizes && sizes.length > 0) params.append('sizes', sizes.join(','));
@@ -62,13 +65,14 @@ const fetchProducts = async ({
   return response.data.object
 }
 
-export const useProducts = (page: number = 1, limit: number = 12) => {
-   const { gender, colors, sizes, category, minPrice, maxPrice } = useFilterStore();
+export const useProducts = (page: number = 1, limit: number = 12, search?: string | null) => {
+  const { gender, colors, sizes, category, minPrice, maxPrice } = useFilterStore();
   return useQuery({
-    queryKey: ['products', page, limit],
+    queryKey: ['products', page, limit, search],
     queryFn: () => fetchProducts({
       page,
       limit,
+      search,
       gender,
       colors,
       sizes,
@@ -79,4 +83,28 @@ export const useProducts = (page: number = 1, limit: number = 12) => {
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   })
+}
+
+export const useSearchSuggestions = (searchTerm: string, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ['search-suggestions', searchTerm],
+    queryFn: async () => {
+      if (!searchTerm.trim()) {
+        return { products: [], pagination: null };
+      }
+
+      const response = await axiosInstance.get<APIDetail<"Products", ProductsWithPagination>>(
+        `/api/products?search=${encodeURIComponent(searchTerm.trim())}&limit=5`
+      );
+
+      if (!response.data) {
+        throw new Error("Empty response");
+      }
+
+      return response.data.object;
+    },
+    enabled: enabled && searchTerm.trim().length > 0,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
+  });
 }

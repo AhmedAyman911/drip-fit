@@ -6,6 +6,7 @@ import { ModeToggle } from "./ModeToggle";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import SignoutButton from "./auth/SignoutButton";
+import SearchBar from "./SearchBar";
 export default async function HamburgerMenu() {
   const session = await getServerSession(authOptions);
   return (
@@ -25,6 +26,10 @@ export default async function HamburgerMenu() {
           <Link href="/products" className="hover:underline">Man</Link>
           <Link href="/products" className="hover:underline">Woman</Link>
         </nav>
+        <div className="px-6">
+          <SearchBar/>
+        </div>
+        
         <SheetFooter>
           <div className="p-2">
             <ModeToggle />

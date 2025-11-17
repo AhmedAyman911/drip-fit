@@ -1,3 +1,4 @@
+
 import Link from "next/link"
 
 import { Search, ShoppingBag, Home, User } from 'lucide-react';
@@ -9,6 +10,7 @@ import { getServerSession } from "next-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import SearchBar from "./SearchBar";
 
 export default async function Navebar() {
     const session = await getServerSession(authOptions);
@@ -24,12 +26,7 @@ export default async function Navebar() {
                 <HamburgerMenu />
             </div>
             <div className="hidden md:block relative">
-                <Search size={20} className="absolute top-2 left-2 text-black" />
-                <input
-                    type="text"
-                    placeholder="Search..."
-                    className="w-80 h-10 pl-8 py-2 rounded-md bg-gray-300 text-black"
-                />
+                <SearchBar/>
             </div>
             <div className="gap-4 hidden md:flex">
                 <CartSheet />

@@ -2,7 +2,7 @@
 'use client'
 import { useProducts } from '@/hooks/useProducts'
 import ItemCard from "@/components/ItemCard";
-import { HTMLAttributes, useEffect } from "react";
+import { HTMLAttributes } from "react";
 import { ProductsPagination } from './productsPagination';
 import { useSearchParams } from 'next/navigation';
 
@@ -12,15 +12,14 @@ interface ItemsGridClientProps extends HTMLAttributes<HTMLDivElement> {
 
 export default function ItemsGridClient({ className, title, ...props }: ItemsGridClientProps) {
   const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search');
   const currentPage = Number(searchParams.get('page')) || 1;
 
-  const { data, isLoading, error } = useProducts(currentPage);
+  const { data, isLoading, error } = useProducts(currentPage, 8, searchQuery);
 
-  // Debug logs
-  useEffect(() => {
-    console.log('Current page from URL:', currentPage);
-    console.log('Data:', data);
-  }, [currentPage, data]);
+  if (searchQuery != null) {
+    title = `Search results for ${searchQuery}...`
+  }
 
   if (isLoading) {
     return (
@@ -67,15 +66,16 @@ export default function ItemsGridClient({ className, title, ...props }: ItemsGri
           ))}
         </div>
         {data.pagination && (
-        <div className="flex justify-center p-4">
-          <ProductsPagination
-            currentPage={data.pagination.currentPage}
-            totalPages={data.pagination.totalPages}
-          />
-        </div>
-      )}
+          <div className="flex justify-center p-4">
+            <ProductsPagination
+              currentPage={data.pagination.currentPage}
+              totalPages={data.pagination.totalPages}
+              searchQuery={searchQuery || ''}
+            />
+          </div>
+        )}
       </div>
-      
+
     </>
   );
 }

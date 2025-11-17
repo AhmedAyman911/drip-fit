@@ -1,4 +1,3 @@
-// components/ProductsPagination.tsx
 'use client'
 import {
   Pagination,
@@ -14,18 +13,23 @@ import { useRouter, usePathname } from "next/navigation";
 interface ProductsPaginationProps {
   currentPage: number;
   totalPages: number;
+  searchQuery: string;
 }
 
 export function ProductsPagination({
   currentPage,
   totalPages,
+  searchQuery,
 }: ProductsPaginationProps) {
   const router = useRouter();
   const pathname = usePathname();
 
   const handlePageChange = (page: number) => {
-    router.push(`${pathname}?page=${page}`);
-    // Scroll to top smoothly
+    if (searchQuery != '') {
+      router.push(`${pathname}?search=${encodeURIComponent(searchQuery.trim())}&page=${page}`);
+    } else {
+      router.push(`${pathname}?page=${page}`);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
