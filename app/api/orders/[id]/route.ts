@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from "@/lib/prisma";
+import { Prisma } from '@prisma/client';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -116,7 +117,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     // Handle cancellation - restore stock
     if (status === 'cancelled' && existingOrder.status !== 'cancelled') {
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         // Update order status
         await tx.order.update({
           where: { id: id },
@@ -222,7 +223,7 @@ export async function DELETE(
     }
 
     // Cancel order and restore stock
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.order.update({
         where: { id: id },
         data: { status: 'cancelled' }

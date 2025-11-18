@@ -106,7 +106,7 @@ export default function SearchBar() {
                                 <button
                                     key={product.id}
                                     onClick={() => handleSuggestionClick(product.id)}
-                                    className="w-48 lg:w-80 flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                                    className="w-48 lg:w-72 flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                                 >
                                     {product.imgSrc[0] && (
                                         <Image
