@@ -5,7 +5,9 @@ import { authOptions } from '../auth/[...nextauth]/route';
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 import OrderReceipt from "@/components/emails/OrderReceipt";
-// GET - Fetch all orders for the authenticated user
+import { Prisma } from '@prisma/client';
+
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -133,7 +135,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create order with items in a transaction
-    const order = await prisma.$transaction(async (tx) => {
+    const order = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Create the order
       const newOrder = await tx.order.create({
         data: {
