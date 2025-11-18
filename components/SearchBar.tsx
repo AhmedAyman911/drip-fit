@@ -95,7 +95,7 @@ export default function SearchBar() {
             )}
 
             {showSuggestions && searchTerm.trim() && (
-                <div className="absolute top-12 left-0 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto z-50">
+                <div className="absolute top-12 left-0 w-48 lg:w-80 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto z-50">
                     {isLoading ? (
                         <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                             Searching...
@@ -106,7 +106,7 @@ export default function SearchBar() {
                                 <button
                                     key={product.id}
                                     onClick={() => handleSuggestionClick(product.id)}
-                                    className="w-48 flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                                    className="w-48 lg:w-80 flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                                 >
                                     {product.imgSrc[0] && (
                                         <Image

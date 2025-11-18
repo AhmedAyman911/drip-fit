@@ -3,60 +3,61 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { prisma } from "@/lib/prisma";
-
+import { Resend } from "resend";
+import OrderReceipt from "@/components/emails/OrderReceipt";
 // GET - Fetch all orders for the authenticated user
 export async function GET(req: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
+  try {
+    const session = await getServerSession(authOptions);
 
-        if (!session?.user?.email) {
-            return NextResponse.json(
-                { error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
-
-        const user = await prisma.user.findUnique({
-            where: { email: session.user.email }
-        });
-
-        if (!user) {
-            return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
-            );
-        }
-
-        const orders = await prisma.order.findMany({
-            where: { userId: user.id },
-            include: {
-                items: {
-                    include: {
-                        product: true
-                    }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-
-        return NextResponse.json({
-            message: "Orders fetched successfully",
-            object: orders
-        });
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch orders' },
-            { status: 500 }
-        );
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const orders = await prisma.order.findMany({
+      where: { userId: user.id },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return NextResponse.json({
+      message: "Orders fetched successfully",
+      object: orders
+    });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch orders' },
+      { status: 500 }
+    );
+  }
 }
 
 // POST - Create a new order from cart items
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -172,6 +173,21 @@ export async function POST(req: NextRequest) {
 
       return newOrder;
     });
+
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+
+      await resend.emails.send({
+        from: "onboarding@resend.dev", // Use your verified domain
+        to: user.email, // Send to the user who placed the order
+        subject: `Order Confirmation #${order.id.slice(0, 8).toUpperCase()}`,
+        react: OrderReceipt({ order: order as any }), // Pass the newly created order
+      });
+    } catch (emailError) {
+      // Log email error but don't fail the order
+      console.error('Failed to send order confirmation email:', emailError);
+      // Optional: You might want to queue this for retry
+    }
 
     return NextResponse.json({
       message: "Order created successfully",

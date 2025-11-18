@@ -86,7 +86,6 @@ export default function CheckoutPage() {
       const order = await createOrderMutation.mutateAsync(orderData);
       clearCart();
       toast.success('Order placed successfully')
-      console.log(order)
       router.push(`/`);
 
       return { success: true };
