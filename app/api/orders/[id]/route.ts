@@ -3,11 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { orderId: string } }
-) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const { id } = params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
@@ -30,7 +28,7 @@ export async function GET(
 
     const order = await prisma.order.findFirst({
       where: {
-        id: params.orderId,
+        id: id,
         userId: user.id
       },
       include: {
@@ -59,11 +57,9 @@ export async function GET(
   }
 }
 // PATCH - Update order status
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { orderId: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const { id } = params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
@@ -99,7 +95,7 @@ export async function PATCH(
     // Check if order exists and belongs to user
     const existingOrder = await prisma.order.findFirst({
       where: {
-        id: params.orderId,
+        id: id,
         userId: user.id
       },
       include: {
@@ -123,7 +119,7 @@ export async function PATCH(
       await prisma.$transaction(async (tx) => {
         // Update order status
         await tx.order.update({
-          where: { id: params.orderId },
+          where: { id: id },
           data: { status }
         });
 
@@ -142,13 +138,13 @@ export async function PATCH(
     } else {
       // Just update the status
       await prisma.order.update({
-        where: { id: params.orderId },
+        where: { id: id },
         data: { status }
       });
     }
 
     const updatedOrder = await prisma.order.findUnique({
-      where: { id: params.orderId },
+      where: { id: id },
       include: {
         items: {
           include: {
