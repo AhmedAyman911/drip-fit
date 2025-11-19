@@ -3,10 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
 import { prisma } from "@/lib/prisma";
-import { Resend } from "resend";
+
 import OrderReceipt from "@/components/emails/OrderReceipt";
 import { Prisma } from '@prisma/client';
 
+import { transporter } from '@/lib/email';
+import { render } from '@react-email/render';
 
 export async function GET(req: NextRequest) {
   try {
@@ -177,18 +179,17 @@ export async function POST(req: NextRequest) {
     });
 
     try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
+      // Render React Email template to HTML
+      const emailHtml = await render(OrderReceipt({ order: order as any }));
 
-      await resend.emails.send({
-        from: "onboarding@resend.dev", // Use your verified domain
-        to: user.email, // Send to the user who placed the order
+      await transporter.sendMail({
+        from: `"Drip Fit" <${process.env.EMAIL_USER}>`,
+        to: user.email,
         subject: `Order Confirmation #${order.id.slice(0, 8).toUpperCase()}`,
-        react: OrderReceipt({ order: order as any }), // Pass the newly created order
+        html: emailHtml,
       });
     } catch (emailError) {
-      // Log email error but don't fail the order
       console.error('Failed to send order confirmation email:', emailError);
-      // Optional: You might want to queue this for retry
     }
 
     return NextResponse.json({
