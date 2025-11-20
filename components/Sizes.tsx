@@ -39,37 +39,42 @@ export default function SizeToggle({ sizes, type, onsizeChange, useFilters = fal
     }
 
     if (type === "single") {
+        const singleValue = useFilters
+            ? (Array.isArray(selectedSize) ? selectedSize[0] : selectedSize)
+            : (selectedSize as string | undefined) ?? items[0];
         return (
-            <ToggleGroup
-                type="single"
-                value={Array.isArray(selectedSize) ? selectedSize[0] : (selectedSize as string | undefined)}
-                onValueChange={handleChange}
-                className="flex gap-2 px-2 flex-wrap"
-            >
-                {items.map((size) => (
-                    <ToggleGroupItem 
-                        key={size} 
-                        value={size} 
-                        className="border border-gray-500 data-[state=on]:ring-2 data-[state=on]:ring-black dark:data-[state=on]:ring-white"
-                    >
-                        {size}
-                    </ToggleGroupItem>
-                ))}
-            </ToggleGroup>
+            <div className="space-y-2">
+                <ToggleGroup
+                    type="single"
+                    value={singleValue || ''}
+                    onValueChange={handleChange}
+                    className="flex gap-2 px-2 flex-wrap"
+                >
+                    {items.map((size) => (
+                        <ToggleGroupItem
+                            key={size}
+                            value={size}
+                            className="border border-gray-500 data-[state=on]:ring-2 data-[state=on]:ring-black dark:data-[state=on]:ring-white"
+                        >
+                            {size}
+                        </ToggleGroupItem>
+                    ))}
+                </ToggleGroup>
+            </div>
         )
     }
 
     return (
-        <ToggleGroup 
-            type={type} 
+        <ToggleGroup
+            type={type}
             value={Array.isArray(selectedSize) ? selectedSize : []}
-            onValueChange={handleChange} 
+            onValueChange={handleChange}
             className="flex gap-2 flex-wrap"
         >
             {items.map((size) => (
-                <ToggleGroupItem 
-                    key={size} 
-                    value={size} 
+                <ToggleGroupItem
+                    key={size}
+                    value={size}
                     className="border border-gray-500 data-[state=on]:ring-2 data-[state=on]:ring-black dark:data-[state=on]:ring-white"
                 >
                     {size}
