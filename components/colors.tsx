@@ -43,13 +43,13 @@ export default function ColorsToggle({ colors, type, onColorChange, useFilters =
     if (type === "single") {
         const singleValue = useFilters
             ? (Array.isArray(selectedColor) ? selectedColor[0] : selectedColor)
-            : (selectedColor as string | undefined);
+            : (selectedColor as string | undefined) ?? items[0]?.toLowerCase();
 
         return (
             <div className="space-y-3">
                 <ToggleGroup
                     type="single"
-                    value={singleValue}
+                    value={singleValue || ''}
                     onValueChange={handleChange}
                     className="flex gap-2 px-2 flex-wrap"
                 >
@@ -83,30 +83,30 @@ export default function ColorsToggle({ colors, type, onColorChange, useFilters =
     const multipleValue = Array.isArray(selectedColor) ? selectedColor : [];
 
     return (
-       <ToggleGroup
-    type="multiple"
-    value={multipleValue}
-    onValueChange={handleChange}
-    className="flex gap-2 px-2 flex-wrap"
->
-    {items.map((color) => {
-        const isSelected = multipleValue?.some(val => val.toLowerCase() === color.toLowerCase());
-        return (
-            <ToggleGroupItem
-                key={color}
-                value={color.toLowerCase()}
-                aria-label={color}
-                className={`rounded-full! w-8 h-8 border ${getColorClass(color)} data-[state=on]:ring-2 relative`}
-            >
-                {isSelected && (
-                    color !== 'white' ?
-                        (<Check className={`w-4 h-4 text-white absolute inset-0 m-auto drop-shadow-lg`} strokeWidth={3} />)
-                        : (<Check className={`w-4 h-4 text-black absolute inset-0 m-auto drop-shadow-lg`} strokeWidth={3} />)
-                )}
-            </ToggleGroupItem>
-        );
-    })}
-</ToggleGroup>
+        <ToggleGroup
+            type="multiple"
+            value={multipleValue}
+            onValueChange={handleChange}
+            className="flex gap-2 px-2 flex-wrap"
+        >
+            {items.map((color) => {
+                const isSelected = multipleValue?.some(val => val.toLowerCase() === color.toLowerCase());
+                return (
+                    <ToggleGroupItem
+                        key={color}
+                        value={color.toLowerCase()}
+                        aria-label={color}
+                        className={`rounded-full! w-8 h-8 border ${getColorClass(color)} data-[state=on]:ring-2 relative`}
+                    >
+                        {isSelected && (
+                            color !== 'white' ?
+                                (<Check className={`w-4 h-4 text-white absolute inset-0 m-auto drop-shadow-lg`} strokeWidth={3} />)
+                                : (<Check className={`w-4 h-4 text-black absolute inset-0 m-auto drop-shadow-lg`} strokeWidth={3} />)
+                        )}
+                    </ToggleGroupItem>
+                );
+            })}
+        </ToggleGroup>
     )
 }
 
@@ -130,7 +130,7 @@ function getColorClass(color: string) {
     }
 }
 
-function getRingClass(color: string) {
+{/*function getRingClass(color: string) {
     switch (color.toLowerCase()) {
         case "black":
             return "ring-black";
@@ -147,4 +147,4 @@ function getRingClass(color: string) {
         default:
             return "ring-gray-400";
     }
-}
+}*/}
