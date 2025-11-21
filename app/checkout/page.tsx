@@ -10,6 +10,8 @@ import { useActionState, useEffect } from 'react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 
+import { useSession } from 'next-auth/react';
+
 type FormState = {
   errors?: {
     shippingAddress?: string[];
@@ -35,6 +37,8 @@ export default function CheckoutPage() {
       router.push('/');
     }
   }, [cart, router]);
+
+  const { data: session, status } = useSession();
 
   const handleSubmit = async (prevState: FormState, formData: FormData): Promise<FormState> => {
     const shippingAddress = formData.get('shippingAddress') as string;
@@ -214,10 +218,10 @@ export default function CheckoutPage() {
                   )}
                 </div>
 
-                {state?.errors?.general && (
+                {(state?.errors?.general && !session?.user )&& (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-md">
                     <p className="text-sm text-red-600">
-                      {state.errors.general[0]}
+                      Please login first to place an order
                     </p>
                   </div>
                 )}
