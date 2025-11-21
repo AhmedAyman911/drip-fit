@@ -7,11 +7,11 @@ export default function NewArrivals() {
     const { data: sale, isLoading, error } = useSale()
 
     if (isLoading) {
-        return <LandingCarouselSkeleton />
+        return <LandingCarouselSkeleton title="Limited Offers" />
     }
     if (error) return <p>Error fetching sale products</p>
-    
+
     return (
-        <CoustumeCarousel title="Limited Offer" products={sale ?? []} />
+        <CoustumeCarousel title="Limited Offers" products={sale ?? []} />
     )
 }

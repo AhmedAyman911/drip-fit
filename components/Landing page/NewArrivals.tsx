@@ -8,7 +8,7 @@ export default function NewArrivals() {
     const { data: newArrivals, isLoading, error } = useNewArrivals()
 
     if (isLoading) {
-        return <LandingCarouselSkeleton />
+        return <LandingCarouselSkeleton  title="New Arrivals" />
     }
 
     if (error) return <p>Error fetching sale products</p>
