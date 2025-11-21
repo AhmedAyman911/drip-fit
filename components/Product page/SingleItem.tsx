@@ -8,7 +8,7 @@ import ProductAccordion from "@/components/Product page/ProductAccordion";
 import { useSingleProduct } from "@/hooks/useSingleProduct";
 import AddToCartButton from "./AddToCartButton";
 
-
+import ProductPageSkeleton from "../skeletons/productPage";
 
 export default function SingleItem({ id }: { id: string }) {
     const [selectedColor, setSelectedColor] = useState<string | null>(null)
@@ -16,7 +16,7 @@ export default function SingleItem({ id }: { id: string }) {
 
     const { data: product, isLoading, error } = useSingleProduct(id)
 
-    if (isLoading) return <div>Loading...</div>
+    if (isLoading) return <ProductPageSkeleton/>
     if (error) return <div>Error: {error.message}</div>
     if (!product) return <div>Product not found</div>
 
