@@ -4,6 +4,7 @@ import ItemCard from "@/components/ItemCard";
 import { HTMLAttributes, Suspense } from "react";
 import { ProductsPagination } from './productsPagination';
 import { useSearchParams } from 'next/navigation';
+import { ProductsGridSkeleton } from './skeletons/ItemCard';
 
 interface ItemsGridClientProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -24,7 +25,7 @@ function ProductsContent({ className, title, ...props }: ItemsGridClientProps) {
         <h1 className="text-3xl md:text-5xl font-bold p-4 text-center md:text-left">
           {displayTitle}
         </h1>
-        <p className="text-center p-8">Loading...</p>
+        <ProductsGridSkeleton itemCount={12} />
       </div>
     );
   }
