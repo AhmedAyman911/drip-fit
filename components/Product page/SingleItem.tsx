@@ -16,9 +16,18 @@ export default function SingleItem({ id }: { id: string }) {
 
     const { data: product, isLoading, error } = useSingleProduct(id)
 
-    if (isLoading) return <ProductPageSkeleton/>
+    if (isLoading) return <ProductPageSkeleton />
     if (error) return <div>Error: {error.message}</div>
     if (!product) return <div>Product not found</div>
+
+    if (product) {
+            if (!selectedColor && product.colors?.length > 0) {
+                setSelectedColor(product.colors[0]);
+            }
+            if (!selectedSize && product.sizes?.length > 0) {
+                setSelectedSize(product.sizes[0]);
+            }
+        }
 
 
     return (
