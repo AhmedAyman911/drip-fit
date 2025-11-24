@@ -126,9 +126,6 @@ export async function POST(req: Request) {
         category: data.category,
         imgSrc: data.imgSrc,
         isOnSale: data.isOnSale ?? false,
-        colors: data.colors ?? [],
-        sizes: data.sizes ?? [],
-        stock: data.stock ?? 0,
         gender: data.gender,
       },
     });
