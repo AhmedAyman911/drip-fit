@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+{/*import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import OrderReceipt from "@/components/emails/OrderReceipt";
 import { Order } from "@/types/orderTypes";
@@ -89,3 +89,4 @@ export async function GET() {
         });
     }
 }
+*/}
