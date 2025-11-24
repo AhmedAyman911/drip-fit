@@ -45,11 +45,28 @@ export async function GET(request: Request) {
     }
 
     if (colors && colors.length > 0) {
-      where.colors = { hasSome: colors };
+      where.variants = {
+        some: {
+          color: { in: colors }
+        }
+      };
     }
 
     if (sizes && sizes.length > 0) {
-      where.sizes = { hasSome: sizes };
+      if (colors && colors.length > 0) {
+        where.variants = {
+          some: {
+            color: { in: colors },
+            size: { in: sizes }
+          }
+        };
+      } else {
+        where.variants = {
+          some: {
+            size: { in: sizes }
+          }
+        };
+      }
     }
 
     if (minPrice !== null || maxPrice !== null) {
@@ -66,6 +83,9 @@ export async function GET(request: Request) {
       take: limit,
       orderBy: {
         createdAt: 'asc',
+      },
+      include: {
+        variants: true,
       },
     });
 

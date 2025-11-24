@@ -20,16 +20,42 @@ export default function SingleItem({ id }: { id: string }) {
     if (error) return <div>Error: {error.message}</div>
     if (!product) return <div>Product not found</div>
 
+    const colors: string[] = [...new Set(product.variants?.map(v => v.color))]
+    const availableSizes = selectedColor
+        ? [...new Set(product.variants?.filter(v => v.color === selectedColor).map(v => v.size) ?? [])]
+        : [];
+
     if (product) {
-            if (!selectedColor && product.colors?.length > 0) {
-                setSelectedColor(product.colors[0]);
-            }
-            if (!selectedSize && product.sizes?.length > 0) {
-                setSelectedSize(product.sizes[0]);
+        {
+            if (!selectedColor && colors.length > 0) {
+                setSelectedColor(colors[0]);
             }
         }
+    }
 
+    const getCurrentPrice = () => {
+        if (selectedColor && selectedSize) {
+            const variant = product.variants?.find(
+                v => v.color === selectedColor && v.size === selectedSize
+            );
+            if (variant) {
+                const displayPrice = variant.price ?? product.price;
+                const salePrice = variant.salePrice ?? (product.isOnSale ? product.salePrice : null);
+                return {
+                    price: displayPrice,
+                    salePrice: salePrice,
+                    isOnSale: salePrice !== null
+                };
+            }
+        }
+        return {
+            price: product.price,
+            salePrice: product.isOnSale ? product.salePrice : null,
+            isOnSale: product.isOnSale
+        };
+    };
 
+    const { price, salePrice, isOnSale } = getCurrentPrice();
     return (
         <div className="flex flex-col lg:flex-row gap-10 px-6 lg:px-32 lg:pt-32 pt-24 pb-10 lg:pb-0">
             <div className="relative w-full lg:w-1/2 flex justify-center">
@@ -45,16 +71,16 @@ export default function SingleItem({ id }: { id: string }) {
 
                 <h1 className="text-3xl sm:text-4xl font-bold">{product.title}</h1>
 
-                {product.isOnSale ? (
+                {isOnSale && salePrice ? (
                     <div className="flex items-center gap-3">
                         <span className="text-lg font-semibold text-gray-400 line-through">
-                            ${product.price}
+                            ${price.toFixed(2)}
                         </span>
-                        <span className="text-2xl font-bold text-red-500">${product.salePrice}</span>
+                        <span className="text-2xl font-bold text-red-500">${salePrice.toFixed(2)}</span>
                     </div>
                 ) : (
                     <div className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                        ${product.price}
+                        ${price.toFixed(2)}
                     </div>
                 )}
 
@@ -62,17 +88,17 @@ export default function SingleItem({ id }: { id: string }) {
                     <p className="font-medium mb-1">Available Colors</p>
                     <ColorsToggle
                         type="single"
-                        colors={product.colors}
-                        onColorChange={(color) => setSelectedColor(color)}
+                        colors={colors}
+                        onColorChange={(color) => { setSelectedColor(color); setSelectedSize(null) }}
                     />
                 </div>
 
                 <div>
                     <p className="font-medium mb-1">Size Options</p>
-                    <SizeToggle type="single" sizes={product.sizes} onsizeChange={(size) => setSelectedSize(size)} />
+                    <SizeToggle type="single" value={selectedSize} sizes={availableSizes} onsizeChange={(size) => setSelectedSize(size)} />
                 </div>
 
-                <AddToCartButton item={product} selectedColor={selectedColor} selectedSize={selectedSize} />
+                <AddToCartButton product={product} selectedColor={selectedColor} selectedSize={selectedSize} />
 
                 <div className="lg:mb-4">
                     <ProductAccordion productInfo={product.description || "No information available."} />

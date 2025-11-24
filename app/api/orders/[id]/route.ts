@@ -102,7 +102,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       include: {
         items: {
           include: {
-            product: true
+            product: true,
+            variant: true 
           }
         }
       }
@@ -124,10 +125,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           data: { status }
         });
 
-        // Restore product stock
+        // Restore variant stock (not product stock)
         for (const item of existingOrder.items) {
-          await tx.product.update({
-            where: { id: item.productId },
+          await tx.productVariant.update({ 
+            where: { id: item.variantId ?? ''},   
             data: {
               stock: {
                 increment: item.quantity
@@ -149,7 +150,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       include: {
         items: {
           include: {
-            product: true
+            product: true,
+            variant: true  
           }
         }
       }
@@ -201,7 +203,8 @@ export async function DELETE(
       include: {
         items: {
           include: {
-            product: true
+            product: true,
+            variant: true
           }
         }
       }
@@ -214,7 +217,7 @@ export async function DELETE(
       );
     }
 
-    // Only allow cancellation if order is pending or processing
+    
     if (order.status !== 'pending' && order.status !== 'processing') {
       return NextResponse.json(
         { error: 'Cannot cancel order with status: ' + order.status },
@@ -229,9 +232,10 @@ export async function DELETE(
         data: { status: 'cancelled' }
       });
 
+      // Restore variant stock (not product stock)
       for (const item of order.items) {
-        await tx.product.update({
-          where: { id: item.productId },
+        await tx.productVariant.update({  
+          where: { id: item.variantId ?? '' },   
           data: {
             stock: {
               increment: item.quantity

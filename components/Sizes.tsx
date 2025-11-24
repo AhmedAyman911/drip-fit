@@ -8,31 +8,32 @@ interface SizeToggleProps {
     type: "single" | "multiple"
     onsizeChange?: (size: string | null) => void
     useFilters?: boolean;
+    value?: string | null;
 }
 
 const defaultSizes = ["S", "M", "L", "XL", "XXL"];
 
-export default function SizeToggle({ sizes, type, onsizeChange, useFilters = false }: SizeToggleProps) {
+export default function SizeToggle({ sizes, type, onsizeChange, useFilters = false, value }: SizeToggleProps) {
 
     const items = sizes || defaultSizes;
     const [localSelectedSize, setLocalSelectedSize] = useState<string | string[] | null>(null);
     const { sizes: filterSizes, setSizes } = useFilterStore();
-    const selectedSize = useFilters ? filterSizes : localSelectedSize;
+    const selectedSize = useFilters ? filterSizes : (value !== undefined ? value : localSelectedSize);;
 
-    const handleChange = (value: string | string[]) => {
+    const handleChange = (newValue: string | string[]) => {
         if (useFilters) {
             if (type === "multiple") {
-                setSizes(Array.isArray(value) && value.length > 0 ? value : null);
+                setSizes(Array.isArray(newValue) && newValue.length > 0 ? newValue : null);
             } else {
-                setSizes(value ? [value as string] : null);
+                setSizes(newValue ? [newValue as string] : null);
             }
         } else {
-            setLocalSelectedSize(value);
+            setLocalSelectedSize(newValue);
             if (onsizeChange) {
-                if (Array.isArray(value)) {
-                    onsizeChange(value[0] ?? null);
+                if (Array.isArray(newValue)) {
+                    onsizeChange(newValue[0] ?? null);
                 } else {
-                    onsizeChange(value || null);
+                    onsizeChange(newValue || null);
                 }
             }
         }
@@ -41,7 +42,7 @@ export default function SizeToggle({ sizes, type, onsizeChange, useFilters = fal
     if (type === "single") {
         const singleValue = useFilters
             ? (Array.isArray(selectedSize) ? selectedSize[0] : selectedSize)
-            : (selectedSize as string | undefined) ?? items[0];
+            : (selectedSize as string | undefined) ;
         return (
             <div className="space-y-2">
                 <ToggleGroup
@@ -69,7 +70,7 @@ export default function SizeToggle({ sizes, type, onsizeChange, useFilters = fal
             type={type}
             value={Array.isArray(selectedSize) ? selectedSize : []}
             onValueChange={handleChange}
-            className="flex gap-2 flex-wrap"
+            className="flex gap-1 flex-wrap pt-1 px-1 "
         >
             {items.map((size) => (
                 <ToggleGroupItem

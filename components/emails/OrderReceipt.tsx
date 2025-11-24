@@ -130,10 +130,15 @@ export default function OrderReceipt({ order }: { order: Order }) {
                                                 <Text style={styles.itemMeta}>
                                                     {item.product.category} • {item.product.gender}
                                                 </Text>
-                                                <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
-                                                <Text style={styles.itemUnitPrice}>
-                                                    ${item.price.toFixed(2)} each
+                                                <Text style={styles.itemMeta}>
+                                                    {item.variant?.color} - {item.variant?.size}
                                                 </Text>
+                                                <Text style={styles.itemQuantity}>Qty: {item.quantity} x 
+                                                    <Text style={styles.itemUnitPrice}>
+                                                         ${item.price.toFixed(2)} each
+                                                    </Text>
+                                                </Text>
+
                                             </td>
 
                                             {/* PRICE */}

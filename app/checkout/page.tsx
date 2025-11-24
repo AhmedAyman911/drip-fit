@@ -38,7 +38,7 @@ export default function CheckoutPage() {
     }
   }, [cart, router]);
 
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const handleSubmit = async (prevState: FormState, formData: FormData): Promise<FormState> => {
     const shippingAddress = formData.get('shippingAddress') as string;
@@ -74,8 +74,11 @@ export default function CheckoutPage() {
     try {
       const orderData = {
         items: cart.map((item) => ({
-          productId: item.id,
+          productId: item.product.id,
+          variantId: item.variant.id,
           quantity: item.quantity,
+          color: item.variant.color,
+          size: item.variant.size
         })),
         address: {
           shippingAddress,
@@ -87,14 +90,14 @@ export default function CheckoutPage() {
         },
       };
 
-      const order = await createOrderMutation.mutateAsync(orderData);
+      await createOrderMutation.mutateAsync(orderData);
       clearCart();
-      toast.success('Order placed successfully')
+      toast.success('Order placed successfully');
       router.push(`/`);
 
       return { success: true };
     } catch (err) {
-      toast.warning('Failed to place order')
+      toast.warning('Failed to place order');
       return {
         errors: {
           general: [err instanceof Error ? err.message : 'Failed to place order'],
@@ -218,10 +221,10 @@ export default function CheckoutPage() {
                   )}
                 </div>
 
-                {(state?.errors?.general && !session?.user )&& (
+                {(state?.errors?.general) && (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-md">
                     <p className="text-sm text-red-600">
-                      Please login first to place an order
+                      {state?.errors?.general}
                     </p>
                   </div>
                 )}
@@ -229,11 +232,14 @@ export default function CheckoutPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isPending || createOrderMutation.isPending}
+                  disabled={isPending || createOrderMutation.isPending || !session?.user}
                 >
-                  {isPending || createOrderMutation.isPending
-                    ? 'Processing...'
-                    : 'Place Order'}
+                  {
+                    (!session?.user) ? 'Please login first to place an order' :
+                      ((isPending || createOrderMutation.isPending) ?
+                        'Processing...'
+                        : 'Place Order')
+                  }
                 </Button>
               </form>
             </div>
@@ -245,29 +251,39 @@ export default function CheckoutPage() {
               <div className="space-y-4 mb-6">
                 {cart.map((item) => (
                   <div
-                    key={`${item.id}-${item.selectedColor}-${item.selectedSize}`}
+                    key={item.variant.id}
                     className="flex gap-3"
                   >
-                    {item.imgSrc && item.imgSrc[0] && (
+                    {item.product.imgSrc && item.product.imgSrc[0] && (
                       <Image
-                        src={item.imgSrc[0]}
-                        alt={item.title}
+                        src={item.product.imgSrc[0]}
+                        alt={item.product.title}
                         width={120}
                         height={120}
                         className="w-16 h-16 object-cover rounded"
                       />
                     )}
                     <div className="flex-1">
-                      <p className="font-medium text-sm">{item.title}</p>
+                      <p className="font-medium text-sm">{item.product.title}</p>
                       <p className="text-xs text-gray-500">
-                        {item.selectedColor} / {item.selectedSize}
+                        {item.variant.color} / {item.variant.size}
                       </p>
                       <p className="text-sm">
-                        Qty: {item.quantity} × ${(item.salePrice ?? item.price).toFixed(2)}
+                        Qty: {item.quantity} × ${(
+                          item.variant.salePrice ??
+                          item.variant.price ??
+                          (item.product.isOnSale ? item.product.salePrice : null) ??
+                          item.product.price
+                        ).toFixed(2)}
                       </p>
                     </div>
                     <p className="font-semibold">
-                      ${((item.salePrice ?? item.price) * item.quantity).toFixed(2)}
+                      ${((
+                        item.variant.salePrice ??
+                        item.variant.price ??
+                        (item.product.isOnSale ? item.product.salePrice : null) ??
+                        item.product.price
+                      ) * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}

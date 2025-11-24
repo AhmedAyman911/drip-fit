@@ -1,22 +1,23 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Item } from '@/types/ItemTypes'
+import type { Item, ProductVariant } from '@/types/ItemTypes'
 
-interface CartItem extends Item {
-    quantity: number,
-    selectedColor: string,
-    selectedSize: string
+interface CartItem {
+    product: Item;
+    variant: ProductVariant;
+    quantity: number;
 }
 
 interface CartState {
     cart: CartItem[];
-    addToCart: (item: Item, color: string, size: string) => void
-    increase: (id: string, color: string, size: string) => void
-    decrease: (id: string, color: string, size: string) => void
-    remove: (id: string, color: string, size: string) => void
+    addToCart: (product: Item, variant: ProductVariant) => void;
+    increase: (variantId: string) => void;
+    decrease: (variantId: string) => void;
+    remove: (variantId: string) => void;
     clearCart: () => void;
     totalItems: () => number;
     totalPrice: () => number;
+    getCartItem: (variantId: string) => CartItem | undefined;
 }
 
 export const useCartStore = create<CartState>()(
@@ -24,64 +25,64 @@ export const useCartStore = create<CartState>()(
         (set, get) => ({
             cart: [],
 
-            addToCart: (item, color, size) => {
+            addToCart: (product, variant) => {
                 const existing = get().cart.find(
-                    (i) => i.id === item.id && i.selectedColor === color && i.selectedSize === size
-                )
+                    (item) => item.variant.id === variant.id
+                );
 
                 if (existing) {
                     set({
-                        cart: get().cart.map((i) =>
-                            i.id === item.id && i.selectedColor === color && i.selectedSize === size
-                                ? { ...i, quantity: i.quantity + 1 }
-                                : i
+                        cart: get().cart.map((item) =>
+                            item.variant.id === variant.id
+                                ? { ...item, quantity: item.quantity + 1 }
+                                : item
                         ),
-                    })
+                    });
                 } else {
                     set({
                         cart: [
                             ...get().cart,
-                            { ...item, quantity: 1, selectedColor: color, selectedSize: size },
+                            { product, variant, quantity: 1 },
                         ],
-                    })
+                    });
                 }
             },
 
-            remove: (id, color, size) => {
+            remove: (variantId) => {
                 set({
                     cart: get().cart.filter(
-                        (i) => !(i.id === id && i.selectedColor === color && i.selectedSize === size)
+                        (item) => item.variant.id !== variantId
                     ),
-                })
+                });
             },
 
-            increase: (id, color, size) => {
+            increase: (variantId) => {
                 set({
-                    cart: get().cart.map((i) =>
-                        i.id === id && i.selectedColor === color && i.selectedSize === size
-                            ? { ...i, quantity: i.quantity + 1 }
-                            : i
+                    cart: get().cart.map((item) =>
+                        item.variant.id === variantId
+                            ? { ...item, quantity: item.quantity + 1 }
+                            : item
                     ),
-                })
+                });
             },
 
-            decrease: (id, color, size) => {
+            decrease: (variantId) => {
                 const current = get().cart.find(
-                    (i) => i.id === id && i.selectedColor === color && i.selectedSize === size
-                )
+                    (item) => item.variant.id === variantId
+                );
 
-                if (!current) return
+                if (!current) return;
 
                 if (current.quantity <= 1) {
-                    get().remove(id, color, size)
+                    get().remove(variantId);
                 } else {
                     set({
-                        cart: get().cart.map((i) =>
-                            i.id === id && i.selectedColor === color && i.selectedSize === size
-                                ? { ...i, quantity: i.quantity - 1 }
-                                : i
+                        cart: get().cart.map((item) =>
+                            item.variant.id === variantId
+                                ? { ...item, quantity: item.quantity - 1 }
+                                : item
                         ),
-                    })
+                    });
                 }
             },
 
@@ -91,11 +92,19 @@ export const useCartStore = create<CartState>()(
                 get().cart.reduce((sum, item) => sum + item.quantity, 0),
 
             totalPrice: () =>
-                get().cart.reduce(
-                    (sum, item) =>
-                        sum + item.quantity * (item.salePrice ?? item.price),
-                    0
-                ),
+                get().cart.reduce((sum, item) => {
+                    const variant = item.variant;
+                    const product = item.product;
+                    const price = variant.salePrice 
+                        ?? variant.price 
+                        ?? (product.isOnSale ? product.salePrice : null)
+                        ?? product.price;
+                    
+                    return sum + item.quantity * price;
+                }, 0),
+
+            getCartItem: (variantId) => 
+                get().cart.find((item) => item.variant.id === variantId),
         }),
         {
             name: "cart-storage",

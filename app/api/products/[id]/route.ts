@@ -9,7 +9,9 @@ export async function GET(
     try {
         const { id } = await context.params;
         const product = await prisma.product.findUnique({
-            where: { id },
+            where: { id }, include: {
+                variants: true,
+            },
         });
 
         if (!product) {
@@ -26,7 +28,7 @@ export async function GET(
     }
 }
 
-export async function PUT(req: Request, context: { params: Promise<{ id: string }>} ) {
+export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await context.params;
         const data = await req.json();
@@ -42,7 +44,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
     }
 }
 
-export async function DELETE(_req: Request, context: { params: Promise<{ id: string }>}) {
+export async function DELETE(_req: Request, context: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await context.params;
         await prisma.product.delete({
