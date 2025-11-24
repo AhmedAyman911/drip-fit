@@ -16,6 +16,22 @@ export default function CartSheet() {
     const totalItems = useCartStore((state) => state.totalItems());
     const totalPrice = useCartStore((state) => state.totalPrice());
 
+    const getItemPrice = (item: typeof items[0]) => {
+        return item.variant.salePrice
+            ?? item.variant.price
+            ?? (item.product.isOnSale ? item.product.salePrice : null)
+            ?? item.product.price;
+    };
+
+    const isItemOnSale = (item: typeof items[0]) => {
+        return item.variant.salePrice !== null ||
+            (item.product.isOnSale && item.product.salePrice !== null);
+    };
+
+    const getOriginalPrice = (item: typeof items[0]) => {
+        return item.variant.price ?? item.product.price;
+    };
+
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -37,83 +53,96 @@ export default function CartSheet() {
                 </SheetHeader>
                 {items?.length > 0 ? (
                     <div className="flex flex-col gap-5 max-h-[60vh] overflow-y-auto pr-2">
-                        {items.map((item) => (
-                            <div
-                                key={item.id}
-                                className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4"
-                            >
-                                <div className="flex gap-4 items-center">
-                                    <Image
-                                        src={Array.isArray(item.imgSrc) ? item.imgSrc[0] : item.imgSrc}
-                                        alt={item.title}
-                                        width={120}
-                                        height={120}
-                                        className="w-20 h-20 lg:w-28 lg:h-28 rounded-md object-cover object-top shadow-sm"
-                                    />
+                        {items.map((item) => {
+                            const currentPrice = getItemPrice(item);
+                            const onSale = isItemOnSale(item);
+                            const originalPrice = getOriginalPrice(item);
 
-                                    <div className="flex flex-col gap-1">
-                                        <h3 className="font-semibold text-sm lg:text-base text-gray-900 dark:text-gray-100">
-                                            {item.title}
-                                        </h3>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            Color: <span className="capitalize">{item.selectedColor || "N/A"}</span>
-                                        </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            Size: <span className="capitalize">{item.selectedSize || "N/A"}</span>
-                                        </p>
+                            return (
+                                <div
+                                    key={item.variant.id}
+                                    className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4"
+                                >
+                                    <div className="flex gap-4 items-center">
+                                        <Image
+                                            src={Array.isArray(item.product.imgSrc) ? item.product.imgSrc[0] : item.product.imgSrc}
+                                            alt={item.product.title}
+                                            width={120}
+                                            height={120}
+                                            className="w-20 h-20 lg:w-28 lg:h-28 rounded-md object-cover object-top shadow-sm"
+                                        />
 
-                                        <div className="flex items-center gap-3 mt-2">
-                                            <button
-                                                onClick={() => decrease(item.id, item.selectedColor, item.selectedSize)}
-                                                className="w-7 h-7 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full font-bold transition"
-                                            >
-                                                -
-                                            </button>
+                                        <div className="flex flex-col gap-1">
+                                            <h3 className="font-semibold text-sm lg:text-base text-gray-900 dark:text-gray-100">
+                                                {item.product.title}
+                                            </h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                Color: <span className="capitalize">{item.variant.color}</span>
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                Size: <span className="capitalize">{item.variant.size}</span>
+                                            </p>
 
-                                            <span className="text-sm font-medium text-gray-800 dark:text-white min-w-5 text-center">
-                                                {item.quantity}
-                                            </span>
+                                            <div className="flex items-center gap-3 mt-2">
+                                                <button
+                                                    onClick={() => decrease(item.variant.id)}
+                                                    className="w-7 h-7 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full font-bold transition"
+                                                >
+                                                    -
+                                                </button>
 
-                                            <button
-                                                onClick={() => increase(item.id, item.selectedColor, item.selectedSize)}
-                                                className="w-7 h-7 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full font-bold transition"
-                                            >
-                                                +
-                                            </button>
+                                                <span className="text-sm font-medium text-gray-800 dark:text-white min-w-5 text-center">
+                                                    {item.quantity}
+                                                </span>
+
+                                                <button
+                                                    onClick={() => increase(item.variant.id)}
+                                                    className="w-7 h-7 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full font-bold transition"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="text-right flex-col">
-                                    <p className="font-semibold text-sm lg:text-base text-gray-900 dark:text-gray-100">
-                                        ${item.price.toFixed(2)}
-                                    </p>
-                                    <button
-                                        onClick={() => remove(item.id, item.selectedColor, item.selectedSize)}
-                                        className="ml-2 text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-500 font-medium transition"
-                                    >
-                                        Remove
-                                    </button>
+                                    <div className="text-right flex-col">
+                                        {onSale ? (
+                                            <div className="flex flex-col items-center gap-3">
+                                                <span className="font-semibold text-sm lg:text-base text-gray-400 line-through">
+                                                    ${originalPrice.toFixed(2)}
+                                                </span>
+                                                <span className="font-semibold text-sm lg:text-base text-red-500">
+                                                    ${currentPrice.toFixed(2)}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="font-semibold text-sm lg:text-base text-gray-900 dark:text-gray-100">
+                                                ${currentPrice.toFixed(2)}
+                                            </span>
+                                        )}
+                                        <button
+                                            onClick={() => remove(item.variant.id)}
+                                            className="ml-2 text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-500 font-medium transition"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
                                 </div>
+                            );
+                        })}
+                        <div className="flex-col">
+                            <div className="flex flex-col">
+                                <p>Total Items: {totalItems}</p>
+                                <p>Total Price: ${totalPrice.toFixed(2)}</p>
                             </div>
-                        ))}
-
-
-                        <div className="flex flex-col gap-2">
-                            <p>Total Items: {totalItems}</p>
-                            <p>Total Price: ${totalPrice.toFixed(2)}</p>
+                            <div className="py-6">
+                                <Link href="/checkout" className="w-full">
+                                    <SheetClose>
+                                        <Button className="w-full">Proceed to Checkout</Button>
+                                    </SheetClose>
+                                </Link>
+                            </div>
                         </div>
-
-                        <div className="pb-6">
-
-                            <Link href="/checkout" className="w-full">
-                                <SheetClose>
-                                    <Button className="w-full">Proceed to Checkout</Button>
-                                </SheetClose>
-                            </Link>
-
-                        </div>
-
                     </div>
                 ) : (
                     <div className="flex flex-col gap-4 items-center justify-center h-[60vh]">

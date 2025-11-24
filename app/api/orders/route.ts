@@ -1,4 +1,3 @@
-// app/api/orders/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/route';
@@ -37,7 +36,8 @@ export async function GET(req: NextRequest) {
       include: {
         items: {
           include: {
-            product: true
+            product: true,
+            variant:true
           }
         }
       },
@@ -99,17 +99,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate and calculate total price
-    let totalPrice = 0;
+   let totalPrice = 0;
     const validatedItems: Array<{
       productId: string;
+      variantId: string;
       quantity: number;
       price: number;
     }> = [];
 
     for (const item of items) {
+      // Fetch product with variants
       const product = await prisma.product.findUnique({
-        where: { id: item.productId }
+        where: { id: item.productId },
+        include: { variants: true }
       });
 
       if (!product) {
@@ -119,18 +121,34 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      if (product.stock < item.quantity) {
+      // Find the specific variant
+      const variant = product.variants.find(v => v.id === item.variantId);
+
+      if (!variant) {
         return NextResponse.json(
-          { error: `Insufficient stock for ${product.title}` },
+          { error: `Variant ${item.variantId} not found` },
+          { status: 404 }
+        );
+      }
+
+      // Check variant stock
+      if (variant.stock < item.quantity) {
+        return NextResponse.json(
+          { error: `Insufficient stock for ${product.title} (${variant.color}, ${variant.size})` },
           { status: 400 }
         );
       }
 
-      const itemPrice = product.salePrice || product.price;
+      const itemPrice = variant.salePrice 
+        ?? variant.price 
+        ?? (product.isOnSale ? product.salePrice : null)
+        ?? product.price;
+
       totalPrice += itemPrice * item.quantity;
 
       validatedItems.push({
         productId: product.id,
+        variantId: variant.id,
         quantity: item.quantity,
         price: itemPrice
       });
@@ -138,7 +156,6 @@ export async function POST(req: NextRequest) {
 
     // Create order with items in a transaction
     const order = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      // Create the order
       const newOrder = await tx.order.create({
         data: {
           userId: user.id,
@@ -157,16 +174,17 @@ export async function POST(req: NextRequest) {
         include: {
           items: {
             include: {
-              product: true
+              product: true,
+              variant: true
             }
           }
         }
       });
 
-      // Update product stock
+      // Update variant stock (not product stock)
       for (const item of validatedItems) {
-        await tx.product.update({
-          where: { id: item.productId },
+        await tx.productVariant.update({
+          where: { id: item.variantId },
           data: {
             stock: {
               decrement: item.quantity

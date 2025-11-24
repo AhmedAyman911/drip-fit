@@ -12,7 +12,7 @@ import Image from "next/image"
 import { Phone } from "lucide-react"
 import CancelOrderButton from "@/components/CancelOrderButton"
 import { useOrders } from "@/hooks/useOrders";
-import {  Order, OrderItem } from "@/types/orderTypes";
+import { Order, OrderItem } from "@/types/orderTypes";
 
 
 
@@ -106,12 +106,12 @@ export default function ProfilePage() {
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total</p>
-                                        <p className="text-2xl font-bold">${order.totalPrice.toFixed(2)}</p>
+                                        <p className="lg:text-2xl font-bold">${order.totalPrice.toFixed(2)}</p>
                                     </div>
                                 </div>
 
                                 <div className="space-y-4">
-                                    {order.items.map((item:OrderItem) => (
+                                    {order.items.map((item: OrderItem) => (
                                         <div key={item.id} className="flex gap-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
                                             {item.product.imgSrc[0] && (
                                                 <Image
@@ -129,6 +129,9 @@ export default function ProfilePage() {
                                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                                     {item.product.category} • {item.product.gender}
                                                 </p>
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                                        {item.variant?.color || '???'} - {item.variant?.size || '???'}
+                                                    </p>
                                                 <div className="flex items-center gap-4">
                                                     <span className="text-sm text-gray-600 dark:text-gray-400">
                                                         Quantity: {item.quantity}
@@ -139,7 +142,7 @@ export default function ProfilePage() {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="font-bold text-lg">
+                                                <p className="font-bold lg:text-lg">
                                                     ${(item.price * item.quantity).toFixed(2)}
                                                 </p>
                                             </div>

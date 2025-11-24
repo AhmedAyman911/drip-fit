@@ -1,4 +1,4 @@
-import { Item } from "./ItemTypes";
+import { Item, ProductVariant } from "./ItemTypes";
 
 export interface OrderItem {
   id: string;
@@ -7,6 +7,8 @@ export interface OrderItem {
   orderId: string;
   productId: string;
   product: Item;
+  variantId: string | null;
+  variant: ProductVariant | null;
 }
 
 export interface Order {
