@@ -83,7 +83,7 @@ export default function CartSheet() {
                                                 Size: <span className="capitalize">{item.variant.size}</span>
                                             </p>
 
-                                            <div className="flex items-center gap-3 mt-2">
+                                            <div className="flex items-center gap-1 mt-2">
                                                 <button
                                                     onClick={() => decrease(item.variant.id)}
                                                     className="w-7 h-7 flex items-center justify-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full font-bold transition"

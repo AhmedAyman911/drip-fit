@@ -7,14 +7,27 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import SignoutButton from "./auth/SignoutButton";
 import SearchBar from "./SearchBar";
-export default async function HamburgerMenu() {
+import { Search } from "lucide-react";
+
+interface propsTypes {
+  top: boolean
+}
+
+export default async function HamburgerMenu({ top }: propsTypes) {
   const session = await getServerSession(authOptions);
   return (
     <Sheet>
       <SheetTrigger asChild >
-        <Button variant="ghost" >
-          <Menu size={24} />
-        </Button>
+        {top ?
+          <Button variant="ghost" >
+            <Menu size={24} />
+          </Button>
+          :
+          <div className="flex flex-col items-center dark:text-gray-200">
+            <Search size={24} />
+            <span className="text-xs mt-1">Search</span>
+          </div>
+        }
       </SheetTrigger>
       <SheetContent side="right" className="w-64 bg-gray-200 dark:bg-gray-900">
         <SheetHeader>
@@ -27,9 +40,9 @@ export default async function HamburgerMenu() {
           <Link href="/products" className="hover:underline">Woman</Link>
         </nav>
         <div className="px-6">
-          <SearchBar/>
+          <SearchBar />
         </div>
-        
+
         <SheetFooter>
           <div className="p-2">
             <ModeToggle />

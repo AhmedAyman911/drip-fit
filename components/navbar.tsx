@@ -1,7 +1,7 @@
 
 import Link from "next/link"
 
-import { Search, ShoppingBag, Home, User } from 'lucide-react';
+import { ShoppingBag, Home, User } from 'lucide-react';
 import { ModeToggle } from "./ModeToggle";
 import HamburgerMenu from "./HamburgerMenu";
 import CartSheet from "./CartSheet";
@@ -23,10 +23,10 @@ export default async function Navebar() {
                 <h2 className="md:text-xl text-md font-bold">Drip Fit</h2>
             </Link>
             <div className="md:hidden items-center! absolute right-4 top-4">
-                <HamburgerMenu />
+                <HamburgerMenu top />
             </div>
             <div className="hidden md:block relative">
-                <SearchBar/>
+                <SearchBar />
             </div>
             <div className="gap-4 hidden md:flex">
                 <CartSheet />
@@ -49,10 +49,9 @@ export default async function Navebar() {
                     <Home size={24} />
                     <span className="text-xs mt-1">Home</span>
                 </Link>
-                <Link href="/search" className="flex flex-col items-center dark:text-gray-200">
-                    <Search size={24} />
-                    <span className="text-xs mt-1">Search</span>
-                </Link>
+                <div >
+                    <HamburgerMenu top={false} />
+                </div>
                 <CartSheet />
                 <Link href="/profile" className="flex flex-col items-center dark:text-gray-200">
                     <User size={24} />

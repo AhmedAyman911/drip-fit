@@ -25,7 +25,7 @@ export default function ProfilePage() {
     }
 
     if (!session) {
-        redirect("/signin");
+        redirect("/api/auth/signin");
     }
 
     const getStatusColor = (status: string) => {
