@@ -32,15 +32,72 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
     try {
         const { id } = await context.params;
         const data = await req.json();
-        const updated = await prisma.product.update({
-            where: { id },
-            data,
+        
+        const { variants, ...productData } = data;
+
+        
+        const updated = await prisma.$transaction(async (tx) => {
+            
+            await tx.product.update({
+                where: { id },
+                data: productData,
+            });
+
+            if (variants && Array.isArray(variants)) {
+                const variantIds = variants.map(v => v.id).filter(Boolean);
+                
+                if (variantIds.length !== variants.length) {
+                    throw new Error("All variants must have an ID");
+                }
+
+                const existingVariants = await tx.productVariant.findMany({
+                    where: {
+                        id: { in: variantIds },
+                        productId: id,
+                    },
+                    select: { id: true },
+                });
+
+                const existingIds = new Set(existingVariants.map(v => v.id));
+                const missingIds = variantIds.filter(vid => !existingIds.has(vid));
+
+                if (missingIds.length > 0) {
+                    throw new Error(`Variant IDs not found: ${missingIds.join(', ')}`);
+                }
+
+                await Promise.all(
+                    variants.map((variant) => {
+                        const { id: variantId, ...variantData } = variant;
+
+                        return tx.productVariant.update({
+                            where: { id: variantId },
+                            data: variantData,
+                        });
+                    })
+                );
+            }
+
+            return tx.product.findUnique({
+                where: { id },
+                include: { variants: true },
+            });
         });
 
         return NextResponse.json(createApiResponse("Product", updated));
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
+        
+        if (error instanceof Error) {
+            return NextResponse.json(
+                { error: error.message }, 
+                { status: 400 }
+            );
+        }
+        
+        return NextResponse.json(
+            { error: "Failed to update product" }, 
+            { status: 500 }
+        );
     }
 }
 

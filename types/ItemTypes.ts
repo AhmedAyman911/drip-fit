@@ -24,3 +24,25 @@ export type ProductVariant = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+
+export interface CreateProductInput {
+  title: string;
+  description?: string;
+  price: number;
+  salePrice?: number;
+  category: string;
+  imgSrc: string[];
+  isOnSale: boolean;
+  gender: string;
+  variants: CreateVariantInput[];
+}
+
+export interface CreateVariantInput {
+  color: string;
+  size: string;
+  sku: string;
+  stock: number;
+  price?: number;
+  salePrice?: number;
+}

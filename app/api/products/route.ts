@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createApiResponse } from "@/lib/apiResponse";
+import { CreateVariantInput  } from "@/types/ItemTypes";
 
 export async function GET(request: Request) {
   try {
@@ -124,15 +125,29 @@ export async function POST(req: Request) {
         price: data.price,
         salePrice: data.salePrice,
         category: data.category,
-        imgSrc: data.imgSrc,
+        imgSrc: data.imgSrc,       
         isOnSale: data.isOnSale ?? false,
         gender: data.gender,
+
+        variants: {
+          create: data.variants.map((v: CreateVariantInput ) => ({
+            color: v.color,
+            size: v.size,
+            sku: v.sku,
+            stock: v.stock,
+            price: v.price,
+            salePrice: v.salePrice,
+          })),
+        },
       },
     });
 
-    return NextResponse.json(product, { status: 201 });
+     return NextResponse.json(createApiResponse("Product", product), { status: 201 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create product" },
+      { status: 500 }
+    );
   }
 }

@@ -45,8 +45,11 @@ export interface ShippingAddress {
 
 export interface CreateOrderRequest {
   items: {
-    productId: string;
+productId: string;
+    variantId: string; 
     quantity: number;
+    color: string;      
+    size: string;  
   }[];
   address: ShippingAddress;
 }

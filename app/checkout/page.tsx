@@ -74,8 +74,8 @@ export default function CheckoutPage() {
     try {
       const orderData = {
         items: cart.map((item) => ({
-          productId: item.product.id,
-          variantId: item.variant.id,
+          productId: item.product.id ?? '',
+          variantId: item.variant.id ?? '',
           quantity: item.quantity,
           color: item.variant.color,
           size: item.variant.size

@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axiosInstance from "@/lib/axiosInstance"
 import { APIDetail } from '@/types/ApiDetail'
-import { Item as productTypes } from '@/types/ItemTypes'
+import { Item as productTypes,CreateProductInput  } from '@/types/ItemTypes'
 import { useFilterStore } from '@/store/filterStore'
 
 interface PaginationInfo {
@@ -108,3 +108,21 @@ export const useSearchSuggestions = (searchTerm: string, enabled: boolean = true
     refetchOnWindowFocus: false,
   });
 }
+
+const createProduct = async (data: CreateProductInput ) => {
+    const response = await axiosInstance.post<APIDetail<"products", CreateProductInput >>('/api/products', data);
+    if (!response.data) {
+        throw new Error("Empty response");
+    }
+    return response.data.object;
+}
+export const useCreateProduct = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: CreateProductInput ) => createProduct(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+    });
+};
