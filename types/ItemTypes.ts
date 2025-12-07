@@ -7,9 +7,9 @@ export type Item = {
   category: string;
   isOnSale: boolean;
   description?: string;
-  gender: string;
-  createdAt: Date;
-  updatedAt: Date;
+  gender: "male" | "female" | "unisex";
+  createdAt?: Date;
+  updatedAt?: Date;
   variants: ProductVariant[];
 };
 export type ProductVariant = {
@@ -20,9 +20,9 @@ export type ProductVariant = {
   sku: string;
   stock: number;
   price?: number;
-  salePrice?: number;  
-  createdAt: Date;
-  updatedAt: Date;
+  salePrice?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 
@@ -46,3 +46,34 @@ export interface CreateVariantInput {
   price?: number;
   salePrice?: number;
 }
+
+export type UpdateProductInput = {
+  id: string;
+  title: string;
+  description?: string;
+  price: number;
+  salePrice?: number;
+  category: string;
+  imgSrc: string[];
+  isOnSale: boolean;
+  gender: "male" | "female" | "unisex";
+  existingVariants: Array<{
+    id: string;
+    productId: string;
+    color: string;
+    size: string;
+    sku: string;
+    stock: number;
+    price?: number;
+    salePrice?: number;
+  }>;
+  newVariants: Array<{
+    productId: string;
+    color: string;
+    size: string;
+    sku: string;
+    stock: number;
+    price?: number;
+    salePrice?: number;
+  }>;
+};

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axiosInstance from "@/lib/axiosInstance"
 import { APIDetail } from '@/types/ApiDetail'
-import { Item as productTypes,CreateProductInput  } from '@/types/ItemTypes'
+import { Item as productTypes,CreateProductInput, UpdateProductInput  } from '@/types/ItemTypes'
 import { useFilterStore } from '@/store/filterStore'
 
 interface PaginationInfo {
@@ -116,13 +116,33 @@ const createProduct = async (data: CreateProductInput ) => {
     }
     return response.data.object;
 }
-export const useCreateProduct = () => {
+export const useCreateProduct = (page: number = 1, limit: number = 12, search?: string | null) => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (data: CreateProductInput ) => createProduct(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['products'] });
+            queryClient.invalidateQueries({ queryKey: ['products', page, limit, search] });
+        },
+    });
+};
+
+const updateProduct = async (data: UpdateProductInput) => {
+    const { id, ...updateData } = data;
+    const response = await axiosInstance.put<APIDetail<"products", UpdateProductInput>>(`/api/products/${id}`, updateData);
+    if (!response.data) {
+        throw new Error("Empty response");
+    }
+    return response.data.object;
+}
+
+export const useUpdateProduct = (id:string) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: UpdateProductInput) => updateProduct(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['product',id] });
         },
     });
 };

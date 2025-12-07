@@ -14,10 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import Image from 'next/image';
 import { toast } from 'sonner';
-import { useCreateProduct } from '@/hooks/useProducts';
+import { useCreateProduct, useUpdateProduct } from '@/hooks/useProducts';
 
 import { uploadImagesToCloudinary } from '@/lib/uploadToCloudinary';
-import { useRouter } from 'next/navigation';
+
+import { Item } from '@/types/ItemTypes';
 
 
 
@@ -26,15 +27,16 @@ const variantSchema = z.object({
   size: z.string().min(1, 'Size is required'),
   sku: z.string().min(1, 'SKU is required'),
   stock: z.coerce.number().min(0),
-  price: z.coerce.number().optional(),
-  salePrice: z.coerce.number().optional(),
+  price: z.number().optional(),
+  salePrice: z.number().optional(),
+  id: z.coerce.string().optional()
 });
 
 const productSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   price: z.coerce.number().min(0),
-  salePrice: z.coerce.number().optional(),
+  salePrice: z.number().optional(),
   category: z.string().min(1),
   gender: z.enum(["male", "female", "unisex"]),
   isOnSale: z.boolean(),
@@ -43,32 +45,44 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-const defaultValues: ProductFormData = {
-  title: "",
-  price: 0,
-  category: "",
-  gender: "unisex",
-  isOnSale: false,
-  salePrice: undefined,
-  description: "",
-  variants: [
-    {
-      color: "",
-      size: "",
-      sku: "",
-      stock: 0,
-      price: undefined,
-      salePrice: undefined,
-    }
-  ]
-};
+interface Tprop {
+  isEdit: boolean
+  product?: Item
+  onSuccess?: () => void
+}
 
 
-export default function ProductForm() {
+export default function ProductForm({ isEdit, product, onSuccess }: Tprop) {
+
+  const [existingImages, setExistingImages] = useState<string[]>(isEdit && product?.imgSrc ? product.imgSrc : []);
   const [images, setImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>(isEdit && product?.imgSrc ? product.imgSrc : []);
   const createProductMutation = useCreateProduct();
-  const router = useRouter();
+
+  const editProductMutation = useUpdateProduct(product?.id||'');
+
+
+  const defaultValues: ProductFormData = {
+    title: isEdit && product ? product.title : "",
+    price: isEdit && product ? product.price : 0,
+    category: isEdit && product ? product.category : "",
+    gender: isEdit && product ? product.gender : "unisex",
+    isOnSale: isEdit && product ? product.isOnSale : false,
+    salePrice: isEdit && product ? product.salePrice : undefined,
+    description: isEdit && product ? product.description : "",
+    variants: isEdit && product
+      ? product.variants
+      : [
+        {
+          color: "",
+          size: "",
+          sku: "",
+          stock: 0,
+          price: undefined,
+          salePrice: undefined,
+        },
+      ],
+  };
 
   const {
     register,
@@ -82,6 +96,7 @@ export default function ProductForm() {
   });
 
 
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'variants',
@@ -91,6 +106,7 @@ export default function ProductForm() {
     control,
     name: "isOnSale",
   });
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -107,7 +123,15 @@ export default function ProductForm() {
   };
 
   const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+    const existingCount = existingImages.length;
+
+    if (index < existingCount) {
+      setExistingImages(prev => prev.filter((_, i) => i !== index));
+    } else {
+      const newImageIndex = index - existingCount;
+      setImages(prev => prev.filter((_, i) => i !== newImageIndex));
+    }
+
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
@@ -142,10 +166,75 @@ export default function ProductForm() {
 
       await createProductMutation.mutateAsync(productData);
       toast.success('Product created successfully!');
-      router.push('/');
+      onSuccess?.();
     } catch (error) {
       console.error('Error creating product:', error);
       toast.error('Failed to create product. Please try again.');
+    }
+  };
+
+  const onEdit = async (data: ProductFormData) => {
+    try {
+      let uploadedUrls: string[] = [];
+
+      if (images.length > 0) {
+        toast.info('Uploading images...');
+        uploadedUrls = await uploadImagesToCloudinary(images);
+        setImages([]);
+        const updatedExisting = [...existingImages, ...uploadedUrls];
+        setExistingImages(updatedExisting);
+      }
+      const finalImageUrls = [...existingImages, ...uploadedUrls];
+
+      const existingVariants = data.variants
+        .filter(v => v.id && v.id.trim() !== '')
+        .map(v => ({
+          id: v.id!,
+          productId: product ? product.id : '',
+          color: v.color,
+          size: v.size,
+          sku: v.sku,
+          stock: v.stock,
+          price: v.price,
+          salePrice: v.salePrice,
+        }));
+
+
+      const newVariants = data.variants
+        .filter(v => !v.id || v.id.trim() === '')
+        .map(v => ({
+          productId: product ? product.id : '',
+          color: v.color,
+          size: v.size,
+          sku: v.sku,
+          stock: v.stock,
+          price: v.price,
+          salePrice: v.salePrice,
+        }));
+
+      console.log('Existing variants:', existingVariants);
+      console.log('New variants:', newVariants);
+
+      const productData = {
+        id: product ? product.id : '',
+        title: data.title,
+        description: data.description,
+        price: data.price,
+        salePrice: data.salePrice,
+        category: data.category,
+        imgSrc: finalImageUrls,
+        isOnSale: data.isOnSale ?? false,
+        gender: data.gender,
+        existingVariants,
+        newVariants,
+      };
+
+      await editProductMutation.mutateAsync(productData);
+      toast.success('Product updated successfully!');
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error('Failed to update product. Please try again.');
     }
   };
 
@@ -153,7 +242,11 @@ export default function ProductForm() {
     <div className="max-w-4xl mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Add New Product</CardTitle>
+          {isEdit ?
+            <CardTitle className="text-2xl">Edit Product</CardTitle>
+            :
+            <CardTitle className="text-2xl">Add New Product</CardTitle>
+          }
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
@@ -185,6 +278,7 @@ export default function ProductForm() {
                 <div className="space-y-2">
                   <Label htmlFor="gender">Gender</Label>
                   <Select
+                    defaultValue={isEdit && product ? product.gender : ''}
                     onValueChange={(value) => setValue('gender', value as 'male' | 'female' | 'unisex')}
                   >
                     <SelectTrigger className='lg:w-[390px]'>
@@ -202,6 +296,7 @@ export default function ProductForm() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="isOnSale"
+                  defaultChecked={isEdit && product ? product.isOnSale : false}
                   onCheckedChange={(checked) => setValue('isOnSale', checked as boolean)}
                 />
                 <Label htmlFor="isOnSale" className="cursor-pointer">Is on sale</Label>
@@ -307,7 +402,7 @@ export default function ProductForm() {
               <div className="space-y-4">
                 {fields.map((field, index) => (
                   <Card key={field.id}>
-                    <CardContent className="pt-6">
+                    <CardContent>
                       <div className="space-y-4">
                         <div className="flex items-center justify-between mb-4">
                           <h4 className="font-medium">Variant {index + 1}</h4>
@@ -369,7 +464,11 @@ export default function ProductForm() {
                               step="0.01"
                               placeholder="Optional"
                               {...register(`variants.${index}.price`, {
-                                setValueAs: (v) => v === '' ? undefined : parseFloat(v)
+                                setValueAs: (v) => {
+                                  if (v === '' || v === null || v === undefined) return undefined;
+                                  const num = parseFloat(v);
+                                  return isNaN(num) ? undefined : num;
+                                }
                               })}
                             />
                           </div>
@@ -382,7 +481,11 @@ export default function ProductForm() {
                                 step="0.01"
                                 placeholder="Optional"
                                 {...register(`variants.${index}.salePrice`, {
-                                  setValueAs: (v) => v === '' ? undefined : parseFloat(v)
+                                  setValueAs: (v) => {
+                                    if (v === '' || v === null || v === undefined) return undefined;
+                                    const num = parseFloat(v);
+                                    return isNaN(num) ? undefined : num;
+                                  }
                                 })}
                               />
                             </div>
@@ -395,9 +498,14 @@ export default function ProductForm() {
               </div>
             </div>
 
-            <Button onClick={handleSubmit(onSubmit)} disabled={createProductMutation.isPending} className="w-full" size="lg">
-              {createProductMutation.isPending ? 'Creating...' : 'Create Product'}
-            </Button>
+            {isEdit ?
+              <Button onClick={handleSubmit(onEdit)} disabled={editProductMutation.isPending} className="w-full" size="lg">
+                {editProductMutation.isPending ? 'Updating...' : 'Edit Product'}
+              </Button>
+              :
+              <Button onClick={handleSubmit(onSubmit)} disabled={createProductMutation.isPending} className="w-full" size="lg">
+                {createProductMutation.isPending ? 'Creating...' : 'Create Product'}
+              </Button>}
           </div>
         </CardContent>
       </Card>

@@ -32,25 +32,22 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
     try {
         const { id } = await context.params;
         const data = await req.json();
-        
-        const { variants, ...productData } = data;
 
-        
+        const { existingVariants, newVariants, ...productData } = data;
+
         const updated = await prisma.$transaction(async (tx) => {
-            
+            // Update product
             await tx.product.update({
                 where: { id },
                 data: productData,
             });
 
-            if (variants && Array.isArray(variants)) {
-                const variantIds = variants.map(v => v.id).filter(Boolean);
-                
-                if (variantIds.length !== variants.length) {
-                    throw new Error("All variants must have an ID");
-                }
+            // Handle existing variants (update)
+            if (existingVariants && Array.isArray(existingVariants) && existingVariants.length > 0) {
+                const variantIds = existingVariants.map(v => v.id);
 
-                const existingVariants = await tx.productVariant.findMany({
+                // Verify all variants exist and belong to this product
+                const existingRecords = await tx.productVariant.findMany({
                     where: {
                         id: { in: variantIds },
                         productId: id,
@@ -58,25 +55,43 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
                     select: { id: true },
                 });
 
-                const existingIds = new Set(existingVariants.map(v => v.id));
+                const existingIds = new Set(existingRecords.map(v => v.id));
                 const missingIds = variantIds.filter(vid => !existingIds.has(vid));
 
                 if (missingIds.length > 0) {
-                    throw new Error(`Variant IDs not found: ${missingIds.join(', ')}`);
+                    throw new Error(`Variant IDs not found or don't belong to this product: ${missingIds.join(', ')}`);
                 }
 
+                // Update each existing variant
                 await Promise.all(
-                    variants.map((variant) => {
+                    existingVariants.map((variant) => {
                         const { id: variantId, ...variantData } = variant;
-
                         return tx.productVariant.update({
                             where: { id: variantId },
                             data: variantData,
                         });
                     })
                 );
+                const updatedVariantIds = existingVariants.map(v => v.id);
+                await tx.productVariant.deleteMany({
+                    where: {
+                        productId: id,
+                        id: { notIn: updatedVariantIds },
+                    },
+                });
             }
 
+            // Handle new variants (create)
+            if (newVariants && Array.isArray(newVariants) && newVariants.length > 0) {
+                await tx.productVariant.createMany({
+                    data: newVariants.map(variant => ({
+                        ...variant,
+                        productId: id, // Ensure productId is set to current product
+                    })),
+                });
+            }
+
+            // Return updated product with all variants
             return tx.product.findUnique({
                 where: { id },
                 include: { variants: true },
@@ -86,16 +101,16 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
         return NextResponse.json(createApiResponse("Product", updated));
     } catch (error) {
         console.error(error);
-        
+
         if (error instanceof Error) {
             return NextResponse.json(
-                { error: error.message }, 
+                { error: error.message },
                 { status: 400 }
             );
         }
-        
+
         return NextResponse.json(
-            { error: "Failed to update product" }, 
+            { error: "Failed to update product" },
             { status: 500 }
         );
     }

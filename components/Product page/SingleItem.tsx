@@ -9,8 +9,12 @@ import { useSingleProduct } from "@/hooks/useSingleProduct";
 import AddToCartButton from "./AddToCartButton";
 
 import ProductPageSkeleton from "../skeletons/productPage";
+import EditProductButton from "../dashboard/EditProductButton";
+
+import { useSession } from "next-auth/react";
 
 export default function SingleItem({ id }: { id: string }) {
+    const { data: session } = useSession();
     const [selectedColor, setSelectedColor] = useState<string | null>(null)
     const [selectedSize, setSelectedSize] = useState<string | null>(null)
 
@@ -71,6 +75,7 @@ export default function SingleItem({ id }: { id: string }) {
 
                 <h1 className="text-3xl sm:text-4xl font-bold">{product.title}</h1>
 
+
                 {isOnSale && salePrice ? (
                     <div className="flex items-center gap-3">
                         <span className="text-lg font-semibold text-gray-400 line-through">
@@ -98,7 +103,10 @@ export default function SingleItem({ id }: { id: string }) {
                     <SizeToggle type="single" value={selectedSize} sizes={availableSizes} onsizeChange={(size) => setSelectedSize(size)} />
                 </div>
 
-                <AddToCartButton product={product} selectedColor={selectedColor} selectedSize={selectedSize} />
+                {session?.user.email == 'ahmedayman9113@gmail.com' ?
+                    <EditProductButton item={product} /> :
+                    <AddToCartButton product={product} selectedColor={selectedColor} selectedSize={selectedSize} />
+                }
 
                 <div className="lg:mb-4">
                     <ProductAccordion productInfo={product.description || "No information available."} />
