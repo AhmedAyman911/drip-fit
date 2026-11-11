@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createApiResponse } from "@/lib/apiResponse";
+import { getAdminSession } from "@/lib/admin";
 
 export async function GET(
     req: Request,
@@ -30,6 +31,9 @@ export async function GET(
 
 export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
     try {
+        if (!(await getAdminSession())) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
         const { id } = await context.params;
         const data = await req.json();
 
@@ -118,7 +122,20 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
 
 export async function DELETE(_req: Request, context: { params: Promise<{ id: string }> }) {
     try {
+        if (!(await getAdminSession())) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
         const { id } = await context.params;
+
+        // Order history references the product, so it can't be removed once it has been ordered.
+        const orderedCount = await prisma.orderItem.count({ where: { productId: id } });
+        if (orderedCount > 0) {
+            return NextResponse.json(
+                { error: "This product appears in past orders and can't be deleted. Set its stock to 0 instead." },
+                { status: 409 }
+            );
+        }
+
         await prisma.product.delete({
             where: { id },
         });

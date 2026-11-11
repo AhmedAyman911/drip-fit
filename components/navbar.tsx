@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import SearchBar from "./SearchBar";
+import { isAdminEmail } from "@/lib/admin";
 
 export default async function Navebar() {
     const session = await getServerSession(authOptions);
@@ -30,6 +31,11 @@ export default async function Navebar() {
             </div>
             <div className="gap-4 hidden md:flex">
                 <CartSheet />
+                {isAdminEmail(session?.user?.email) && (
+                    <Link href="/dashboard" className="flex items-center h-9 px-3 rounded-md border-2 border-black dark:border-gray-200 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-800">
+                        Dashboard
+                    </Link>
+                )}
                 {!session ? <>
                     <Link href={'/api/auth/signin'} className="bg-black text-gray-200 dark:bg-gray-200 dark:text-black
                  px-2 py-1 w-14 h-9 rounded-md hover:bg-gray-900 dark:hover:bg-gray-200">Login</Link>

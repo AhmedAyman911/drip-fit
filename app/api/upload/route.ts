@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import cloudinary from '@/lib/cloudinary';
+import { getAdminSession } from '@/lib/admin';
 
 export async function POST(request: NextRequest) {
   try {
+    if (!(await getAdminSession())) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const formData = await request.formData();
     const file = formData.get('file') as File;
 

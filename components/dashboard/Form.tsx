@@ -68,10 +68,18 @@ export default function ProductForm({ isEdit, product, onSuccess }: Tprop) {
     category: isEdit && product ? product.category : "",
     gender: isEdit && product ? product.gender : "unisex",
     isOnSale: isEdit && product ? product.isOnSale : false,
-    salePrice: isEdit && product ? product.salePrice : undefined,
-    description: isEdit && product ? product.description : "",
+    salePrice: isEdit && product ? product.salePrice ?? undefined : undefined,
+    description: isEdit && product ? product.description ?? "" : "",
     variants: isEdit && product
-      ? product.variants
+      ? product.variants.map((variant) => ({
+        id: variant.id,
+        color: variant.color,
+        size: variant.size,
+        sku: variant.sku,
+        stock: variant.stock,
+        price: variant.price ?? undefined,
+        salePrice: variant.salePrice ?? undefined,
+      }))
       : [
         {
           color: "",

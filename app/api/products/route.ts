@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createApiResponse } from "@/lib/apiResponse";
 import { CreateVariantInput  } from "@/types/ItemTypes";
+import { getAdminSession } from "@/lib/admin";
 
 export async function GET(request: Request) {
   try {
@@ -116,6 +117,9 @@ export async function GET(request: Request) {
 
 export async function POST(req: Request) {
   try {
+    if (!(await getAdminSession())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     const data = await req.json();
 
     const product = await prisma.product.create({

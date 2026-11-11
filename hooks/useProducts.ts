@@ -116,13 +116,15 @@ const createProduct = async (data: CreateProductInput ) => {
     }
     return response.data.object;
 }
-export const useCreateProduct = (page: number = 1, limit: number = 12, search?: string | null) => {
+export const useCreateProduct = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (data: CreateProductInput ) => createProduct(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['products', page, limit, search] });
+            for (const key of ['products', 'new-arrivals', 'sale', 'admin-stats']) {
+                queryClient.invalidateQueries({ queryKey: [key] });
+            }
         },
     });
 };
@@ -143,6 +145,9 @@ export const useUpdateProduct = (id:string) => {
         mutationFn: (data: UpdateProductInput) => updateProduct(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['product',id] });
+            for (const key of ['products', 'new-arrivals', 'sale', 'admin-stats']) {
+                queryClient.invalidateQueries({ queryKey: [key] });
+            }
         },
     });
 };
