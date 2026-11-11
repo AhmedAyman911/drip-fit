@@ -4,7 +4,7 @@ import { authOptions } from '../auth/[...nextauth]/route';
 import { prisma } from "@/lib/prisma";
 
 import OrderReceipt from "@/components/emails/OrderReceipt";
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@/lib/generated/prisma/client';
 
 import { transporter } from '@/lib/email';
 import { render } from '@react-email/render';

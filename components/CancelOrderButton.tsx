@@ -30,7 +30,7 @@ export default function CancelOrderButton({ id }: { id: string }) {
     return (
         <div className="flex">
             <Dialog>
-                <DialogTrigger>
+                <DialogTrigger asChild>
                     <Button className="bg-red-500 text-white hover:bg-red-600">
                         Cancel order
                     </Button>

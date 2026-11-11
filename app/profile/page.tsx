@@ -1,189 +1,118 @@
 'use client';
 
-import { Card, CardHeader } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react"
 import Link from "next/link"
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
-import SignoutButton from "@/components/auth/SignoutButton";
-import Image from "next/image"
-import { Phone } from "lucide-react"
-import CancelOrderButton from "@/components/CancelOrderButton"
-import { useOrders } from "@/hooks/useOrders";
-import { Order, OrderItem } from "@/types/orderTypes";
+import { redirect } from "next/navigation"
+import { useSession } from "next-auth/react"
+import { ShoppingBag } from "lucide-react"
+import { Accordion } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import ProfileHeader from "@/components/profile/ProfileHeader"
+import OrderCard from "@/components/profile/OrderCard"
+import { formatWholeMoney } from "@/components/dashboard/orderStatusMeta"
+import { useOrders } from "@/hooks/useOrders"
+import { Order } from "@/types/orderTypes"
 
+type Filter = "all" | "active" | "delivered" | "cancelled"
 
+const FILTERS: { value: Filter; label: string; matches: (order: Order) => boolean }[] = [
+    { value: "all", label: "All", matches: () => true },
+    { value: "active", label: "In progress", matches: (o) => ["pending", "processing", "shipped"].includes(o.status) },
+    { value: "delivered", label: "Delivered", matches: (o) => o.status === "delivered" },
+    { value: "cancelled", label: "Cancelled", matches: (o) => o.status === "cancelled" },
+]
 
 export default function ProfilePage() {
-    const { data: session, status } = useSession();
-    const { data: orders = [], isLoading } = useOrders();
+    const { data: session, status } = useSession()
+    const { data: orders = [], isLoading, error } = useOrders()
+    const [filter, setFilter] = useState<Filter>("all")
 
-    if (status === "loading" || isLoading) {
-        return <div className="px-6 md:px-32 md:py-32 py-24">Loading...</div>;
-    }
+    // Decide on sign-in first so signed-out visitors aren't held up by the orders request.
+    if (status === "loading") return <ProfileSkeleton />
+    if (!session) redirect("/api/auth/signin")
 
-    if (!session) {
-        redirect("/api/auth/signin");
-    }
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'delivered':
-                return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-            case 'shipped':
-                return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-            case 'processing':
-                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-            case 'cancelled':
-                return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-            default:
-                return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-        }
-    };
+    const active = FILTERS.find((f) => f.value === filter)!
+    const visible = orders.filter(active.matches)
+    const spent = orders.filter((o) => o.status !== "cancelled").reduce((sum, o) => sum + o.totalPrice, 0)
+    const inProgress = orders.filter(FILTERS[1].matches).length
 
     return (
-        <div className="px-6 md:px-32 md:py-32 py-24 flex flex-col gap-10">
-            <Card className="md:p-6 bg-sky-200 dark:bg-indigo-900 dark:text-white rounded-2xl shadow-xl border dark:border-amber-50 border-black">
-                <CardHeader className="space-y-3">
-                    <div className="flex items-center gap-4">
-                        <Avatar className="h-16 w-16 border-2 border-white">
-                            <AvatarImage src={session.user?.image || "/test.jpg"} alt="Profile Picture" />
-                            <AvatarFallback>{session.user?.name?.slice(0, 2).toUpperCase() || "NA"}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h1 className="lg:text-3xl text-xl font-bold">Welcome back, {session.user?.name} 👋</h1>
-                            <p className="opacity-90 text-sm mt-1">
-                                Here&apos;s an overview of your Drip Fit activity.
-                            </p>
-                        </div>
-                        <SignoutButton />
-                    </div>
-                </CardHeader>
-            </Card>
-            <Separator />
+        <div className="mx-auto w-full max-w-4xl space-y-12 px-4 pt-24 pb-32 md:px-8 md:pt-32 md:pb-20">
+            <ProfileHeader
+                name={session.user?.name}
+                email={session.user?.email}
+                image={session.user?.image}
+                stats={[
+                    { label: "Orders", value: String(orders.length) },
+                    { label: "In progress", value: String(inProgress) },
+                    { label: "Spent", value: formatWholeMoney(spent) },
+                ]}
+            />
 
-            <div>
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-2xl font-bold">Your Orders</h3>
+            <section className="space-y-5" aria-labelledby="orders-heading">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h2 id="orders-heading" className="text-2xl font-bold">Your orders</h2>
                     {orders.length > 0 && (
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {orders.length} order{orders.length > 1 ? 's' : ''} total
-                        </span>
+                        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter orders">
+                            {FILTERS.map((f) => {
+                                const count = orders.filter(f.matches).length
+                                return (
+                                    <Button
+                                        key={f.value}
+                                        size="sm"
+                                        variant={filter === f.value ? "default" : "outline"}
+                                        aria-pressed={filter === f.value}
+                                        onClick={() => setFilter(f.value)}
+                                    >
+                                        {f.label} <span className="tabular-nums opacity-70">{count}</span>
+                                    </Button>
+                                )
+                            })}
+                        </div>
                     )}
                 </div>
 
-                {orders.length > 0 ? (
-                    <div className="space-y-6">
-                        {orders.map((order: Order) => (
-                            <div
-                                key={order.id}
-                                className="border p-6 rounded-lg shadow-lg dark:border-gray-700 dark:bg-gray-800"
-                            >
-                                <div className="flex justify-between items-start mb-6 pb-4 border-b dark:border-gray-700">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-3">
-                                            <span className="lg:text-lg text-sm font-semibold">
-                                                Order #{order.id.slice(0, 8).toUpperCase()}
-                                            </span>
-                                            <Badge className={getStatusColor(order.status)}>
-                                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                            </Badge>
-                                        </div>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                                            Placed on {new Date(order.createdAt).toLocaleDateString('en-US', {
-                                                weekday: 'long',
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            })}
-                                        </p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                                            {order.items.length} item{order.items.length > 1 ? 's' : ''} •
-                                            Shipping to {order.city}, {order.country}
-                                        </p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total</p>
-                                        <p className="lg:text-2xl font-bold">${order.totalPrice.toFixed(2)}</p>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    {order.items.map((item: OrderItem) => (
-                                        <div key={item.id} className="flex gap-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-900">
-                                            {item.product.imgSrc[0] && (
-                                                <Image
-                                                    src={item.product.imgSrc[0]}
-                                                    alt={item.product.title}
-                                                    width={100}
-                                                    height={100}
-                                                    className="w-15 h-25 object-cover rounded-lg"
-                                                />
-                                            )}
-                                            <div className="flex-1">
-                                                <h4 className="font-semibold text-base mb-1">
-                                                    {item.product.title}
-                                                </h4>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                                    {item.product.category} • {item.product.gender}
-                                                </p>
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                                        {item.variant?.color || '???'} - {item.variant?.size || '???'}
-                                                    </p>
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                                                        Quantity: {item.quantity}
-                                                    </span>
-                                                    <span className="text-sm font-medium">
-                                                        ${item.price.toFixed(2)} each
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="font-bold lg:text-lg">
-                                                    ${(item.price * item.quantity).toFixed(2)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="mt-6 pt-4 border-t dark:border-gray-700">
-                                    <h4 className="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                                        Shipping Address
-                                    </h4>
-                                    <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                        <p>{order.shippingAddress}</p>
-                                        <p>
-                                            {order.city}
-                                            {order.state && `, ${order.state}`} {order.postalCode}
-                                        </p>
-                                        <p>{order.country}</p>
-                                        <p className="pt-2 flex gap-1"><Phone className="w-4 h-4" /> {order.phoneNumber}</p>
-                                        {(order.status === "pending" || order.status === "processing") && (
-                                            <div className="pt-4">
-                                                <CancelOrderButton id={order.id} />
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                {isLoading ? (
+                    <div className="space-y-3" aria-busy="true" aria-label="Loading orders">
+                        {[0, 1, 2].map((i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
                     </div>
+                ) : error ? (
+                    <p className="rounded-xl border bg-card p-6 text-sm text-destructive">
+                        Couldn&apos;t load your orders. Refresh the page to try again.
+                    </p>
+                ) : orders.length === 0 ? (
+                    <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed py-16 text-center">
+                        <ShoppingBag className="size-10 text-muted-foreground" aria-hidden />
+                        <div>
+                            <p className="text-lg font-semibold">No orders yet</p>
+                            <p className="text-sm text-muted-foreground">When you check out, your orders and their progress show up here.</p>
+                        </div>
+                        <Button asChild><Link href="/products">Start shopping</Link></Button>
+                    </div>
+                ) : visible.length === 0 ? (
+                    <p className="rounded-xl border border-dashed py-12 text-center text-sm text-muted-foreground">
+                        No {active.label.toLowerCase()} orders.
+                    </p>
                 ) : (
-                    <div className="text-center py-12 border rounded-lg dark:border-gray-700">
-                        <p className="text-gray-500 dark:text-gray-400 mb-4">No orders found.</p>
-                        <Link
-                            href="/products"
-                            className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            Start Shopping
-                        </Link>
-                    </div>
+                    <Accordion type="single" collapsible className="space-y-3">
+                        {visible.map((order) => <OrderCard key={order.id} order={order} />)}
+                    </Accordion>
                 )}
-            </div>
+            </section>
         </div>
-    );
+    )
+}
+
+function ProfileSkeleton() {
+    return (
+        <div className="mx-auto w-full max-w-4xl space-y-8 px-4 pt-24 md:px-8 md:pt-32" aria-busy="true">
+            <div className="flex items-center gap-4">
+                <Skeleton className="size-16 rounded-full sm:size-24" />
+                <Skeleton className="h-10 w-64" />
+            </div>
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
+        </div>
+    )
 }

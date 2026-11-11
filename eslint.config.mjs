@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Unused starter templates, not part of the app.
+    "react-email-starter/**",
   ]),
 ]);
 
